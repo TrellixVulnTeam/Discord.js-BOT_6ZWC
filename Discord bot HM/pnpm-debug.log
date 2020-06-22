@@ -1,0 +1,19 @@
+{
+  "0 debug pnpm:scope": {
+    "selected": 1
+  },
+  "1 error pnpm": {
+    "message": {
+      "errno": -13,
+      "code": "EACCES",
+      "syscall": "open",
+      "path": "/usr/local/pnpm-global/3/_tmp_17203_e4f424f5b887208fed72b5203de2088e"
+    },
+    "err": {
+      "name": "Error",
+      "message": "EACCES: permission denied, open '/usr/local/pnpm-global/3/_tmp_17203_e4f424f5b887208fed72b5203de2088e'",
+      "code": "EACCES",
+      "stack": "Error: EACCES: permission denied, open '/usr/local/pnpm-global/3/_tmp_17203_e4f424f5b887208fed72b5203de2088e'"
+    }
+  }
+}
