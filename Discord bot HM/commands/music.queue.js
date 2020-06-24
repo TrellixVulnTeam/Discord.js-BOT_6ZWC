@@ -24,5 +24,5 @@ module.exports.run = async (bot, message, arguments, options) => {
 }
 
 module.exports.help = {
-    name: "queue"
+    name: "unk"
 }

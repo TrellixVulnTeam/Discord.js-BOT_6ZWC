@@ -7,5 +7,5 @@ module.exports.run = async (bot, message, arguments, options) => {
 }
 
 module.exports.help = {
-    name: "update"
+    name: "unk"
 }

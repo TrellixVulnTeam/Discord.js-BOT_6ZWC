@@ -87,5 +87,5 @@ function Finish(bot, options, dispatcher) {
 }
 
 module.exports.help = {
-    name: "play"
+    name: "unk"
 }
