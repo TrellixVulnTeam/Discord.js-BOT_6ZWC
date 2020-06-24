@@ -113,7 +113,11 @@ function scrollStatus() {
         global.smoothElements = undefined;
         var map = webdriver.promise.map;
         (async function gtascrape() {
-            let driver = await new Builder().forBrowser('chrome').setChromeOptions(new chrome.Options().headless().windowSize({width: 640, height: 480})).build();
+            var options = new chrome.Options();
+            options.headless();
+            options.windowSize({width: 640, height: 480});
+            options.excludeSwitches("enable-logging");
+            let driver = await new Builder().forBrowser('chrome').setChromeOptions(options).build();
             try {
                 await driver.get("https://support.rockstargames.com/servicestatus");
                 await driver.wait(until.elementLocated(By.className("status visible")));
@@ -220,7 +224,7 @@ bot.on("ready", async () => {
 
     var prefix = prefixes[serverid].prefixes;
 
-    global.scrollStatusInterval = setInterval(scrollStatus, 15000);
+    global.scrollStatusInterval = setInterval(scrollStatus, 15000); //default: 15000
 
 });
 
