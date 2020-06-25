@@ -1,5 +1,7 @@
 const discord = require("discord.js");
+
 const botConfig = require("./botconfig.json");
+
 const {Builder, By, Key, until} = require("selenium-webdriver");
 const webdriver = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
@@ -162,15 +164,6 @@ function scrollStatus() {
                 }, 2000);
             }
         }) ();
-       /* try {
-            chan = bot.channels.cache.find(channel => channel.name.startsWith("GTA Online"));
-            if (chan.name == "GTA Online ⚪️") {
-                chan.setName("GTA Online ⚫️");
-            }
-        } finally {
-            console.log("BLACK CHECK GTA ERROR");
-        }*/
-        
     }
     scrollCount ++;
     if (scrollCount > 4) {scrollCount = 1};
@@ -193,24 +186,20 @@ fs.readdir("./commands/", (err, files) => {
     }
 
     jsFiles.forEach((f, i) => {
-
         var fileGet = require(`./commands/${f}`);
         console.log(`The file ${f} was loaded`);
 
         bot.commands.set(fileGet.help.name, fileGet);
-
     })
 
 });
 
 var request = require("request");
 
-
 bot.on("ready", async () => {
-
     console.log(`${bot.user.username} is online!`);
 
-    var prefixes = JSON.parse(fs.readFileSync("./prefixes.json"));                                //prefixesnew//
+    var prefixes = JSON.parse(fs.readFileSync("./prefixes.json"));
 
     if (!prefixes[serverid]){
         prefixes[serverid] = {
@@ -225,28 +214,23 @@ bot.on("ready", async () => {
     var prefix = prefixes[serverid].prefixes;
 
     global.scrollStatusInterval = setInterval(scrollStatus, 15000); //default: 15000
-
 });
 
 var request = require("request");
 
 bot.on("message", async message => {
 
-
-
-    /*var today = new Date();
-    var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-    var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-    var dateTime = date+' '+time;
-    console.log(`servercheck succesfull at ${dateTime}`);*/
-
     if (message.author.bot) return;
 
     if (message.channel.type === "dm") return;
 
-//    var prefix = botConfig.prefix;                                                              //prefixdefault//
+    if(message.content.includes("unk")) {
+        message.reply("The word \"unk\" it temporarily banned whilest GOD is online.");
+        message.delete();
+        return;
+    }
 
-    var prefixes = JSON.parse(fs.readFileSync("./prefixes.json"));                                //prefixesnew//
+    var prefixes = JSON.parse(fs.readFileSync("./prefixes.json"));
 
 
     if (!prefixes[message.guild.id]){
@@ -259,15 +243,10 @@ bot.on("message", async message => {
     }
 
     var prefix = prefixes[message.guild.id].prefixes;
-
     var messageArray = message.content.split(" ");
-
     var command = messageArray[0];
-
     var arguments = messageArray.slice(1);
-
     var commands = bot.commands.get(command.slice(prefix.length));
-
     var options = {active: active};
 
     if (commands) {
