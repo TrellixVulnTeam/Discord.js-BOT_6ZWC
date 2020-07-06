@@ -3,10 +3,13 @@ const botConfig = require("../botconfig.json");
 
 module.exports.run = async (bot, message, arguments) => {
 
-    message.channel.send("pong: " + (Date.now() - message.createdTimestamp) + "ms");
-
+    if (arguments != "") {
+        message.reply(`Syntax Error: unused argument "${arguments}" was provided. Use ${botConfig.prefix}help when struggeling.`);
+    } else {
+    message.channel.send("!pong: " + Math.abs(Date.now() - message.createdTimestamp) + "ms");
+    }
 }
 
 module.exports.help = {
-    name: "unk"
+    name: "ping"
 }

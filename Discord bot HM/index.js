@@ -225,7 +225,7 @@ bot.on("message", async message => {
     if (message.channel.type === "dm") return;
 
     if(message.content.includes("unk")) {
-        message.reply("The word \"unk\" it temporarily banned whilest GOD is online.");
+        message.reply("The word \"unk\" is temporarily banned whilest GOD is online.");
         message.delete();
         return;
     }
