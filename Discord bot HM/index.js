@@ -256,8 +256,8 @@ bot.on("message", async message => {
     if (command === `${botConfig.prefix}shutdown`) {
         clearInterval(scrollStatusInterval);
         bot.channels.cache.find(channel => channel.name.startsWith("Cubecraft")).setName("Cubecraft ⚪️");
-        bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden S")).setName("Heilige Maagden S ⚪️");
         bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden C")).setName("Heilige Maagden C ⚪️");
+        bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden S")).setName("Heilige Maagden S ⚪️");
         bot.channels.cache.find(channel => channel.name.startsWith("GTA Online")).setName("GTA Online ⚪️");
         bot.user.setActivity("");
         bot.user.setStatus("invisible");
@@ -267,8 +267,8 @@ bot.on("message", async message => {
             bot.login(botConfig.token).catch();
         } else {
             setTimeout(() => {bot.channels.cache.find(channel => channel.name.startsWith("Cubecraft")).setName("Cubecraft ⚪️");}, 5000);
-            setTimeout(() => {bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden S")).setName("Heilige Maagden S ⚪️");}, 5000);
             setTimeout(() => {bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden C")).setName("Heilige Maagden C ⚪️");}, 5000);
+            setTimeout(() => {bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden S")).setName("Heilige Maagden S ⚪️");}, 5000);
             setTimeout(() => {bot.channels.cache.find(channel => channel.name.startsWith("GTA Online")).setName("GTA Online ⚪️");}, 5000);
             setTimeout(() => {bot.user.setActivity("");}, 5000);
             setTimeout(() => {bot.user.setStatus("invisible");}, 5000);
