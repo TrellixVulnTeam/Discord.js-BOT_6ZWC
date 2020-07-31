@@ -1,6 +1,6 @@
 {
   "name": "hmbots",
-  "version": "3.13.1",
+  "version": "0.1.0",
   "description": "bot-package for Heilig Maagden.discord",
   "main": "index.js",
   "scripts": {
