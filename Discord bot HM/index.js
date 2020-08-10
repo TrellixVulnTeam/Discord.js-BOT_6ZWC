@@ -262,14 +262,14 @@ bot.on("message", async message => {
         bot.user.setActivity("");
         bot.user.setStatus("invisible");
 
-        if (arguments[0] === "r") {
+        if (arguments[0] === "-r") {
             bot.destroy();
             bot.login(botConfig.token).catch();
         } else {
-            setTimeout(() => {bot.channels.cache.find(channel => channel.name.startsWith("Cubecraft")).setName("Cubecraft ⚪️");}, 5000);
+            setTimeout(() => {bot.channels.cache.find(channel => channel.name.startsWith("Cubecraft")).setName("Cubecraft ⚪️");}, 400);
             setTimeout(() => {bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden C")).setName("Heilige Maagden C ⚪️");}, 5000);
-            setTimeout(() => {bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden S")).setName("Heilige Maagden S ⚪️");}, 5000);
-            setTimeout(() => {bot.channels.cache.find(channel => channel.name.startsWith("GTA Online")).setName("GTA Online ⚪️");}, 5000);
+            setTimeout(() => {bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden S")).setName("Heilige Maagden S ⚪️");}, 6000);
+            setTimeout(() => {bot.channels.cache.find(channel => channel.name.startsWith("GTA Online")).setName("GTA Online ⚪️");}, 7000);
             setTimeout(() => {bot.user.setActivity("");}, 5000);
             setTimeout(() => {bot.user.setStatus("invisible");}, 5000);
             console.log("destroying");
