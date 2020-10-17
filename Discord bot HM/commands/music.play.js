@@ -1,13 +1,21 @@
 require("ffmpeg-static")
+const fs = require("fs")
 const ytdl = require("ytdl-core");
 const discord = require("discord.js");
 const botConfig = require("../botconfig.json");
 
 module.exports.run = async (bot, message, arguments, options) => {
     if(!message.member.voice.channel) return message.reply("You are not connected to a voice channel.").then(message => message.delete({timeout: 3000}));
-    if(message.guild.me.voice.channel) return message.reply("Already connected to a voice channel.").then(message => message.delete({timeout: 3000}));
+    if((message.guild.me.voice.channel != message.member.voice.channel) && (message.guild.me.voice.channel)) return message.reply("Already connected to a voice channel.").then(message => message.delete({timeout: 3000}));
     if(!arguments[0]) return message.reply(`Syntax Error: 1 argument was expected, none were given. Use ${botConfig.prefix}help when struggeling.`).then(message => message.delete({timeout: 3000}));
     if(arguments[1]) return message.reply(`Syntax Error: 1 argument was expected, 2+ were given: ${arguments}. Use ${botConfig.prefix}help when struggeling.`).then(message => message.delete({timeout: 3000}));
+
+    if (!isNaN(arguments[0])) {
+        index = Number(arguments[0])
+        var jsonfile = JSON.parse(fs.readFileSync("./botconfig.json").toString());
+        arguments[0] = jsonfile[index]
+        console.log(arguments[0])
+    }
 
     var validate = await ytdl.validateURL(arguments[0]);
     if(!validate) return (`Excecution Error: the url provided does not exist. Use ${botConfig.prefix}help when struggeling.`);
@@ -24,37 +32,30 @@ module.exports.run = async (bot, message, arguments, options) => {
         url: arguments[0],
         announcementChannel: message.channel.id
     });
+    const serv = message.guild
+    message.delete();
     if(!data.dispatcher){
-        Play(bot, options, data);
+        Play(bot, options, data, serv);
     } else{
-        message.channel.send(`Added ${info.title} to the queue - Requested by ${message.author.tag}`).then(message => message.delete({timeout: 3000}));
+        message.channel.send(`Added ${info.videoDetails.title} to the queue - Requested by ${message.author.tag}`).then(message => message.delete({timeout: 3000}));
     }
 
     options.active.set(message.guild.id, data);
     var options = {seek: 0, volume: 1};
-
-//    var voiceConnection = message.member.voiceChannel.join()
-//    .then(voiceChannel => {
-//        var stream = ytdl(arguments[0], {filter: "audioonly"});
-//        var streamDispatch = voiceChannel.playStream(stream, options);
-//    })
-//    .catch(console.error);
-
-//    message.channel.send(`Now playing: ${info.title}`);
     
 }
 
-async function Play(bot, options, data){
+async function Play(bot, options, data, serv){
     bot.channels.cache.get(data.queue[0].announcementChannel).send(`Now playing: ${data.queue[0].songTitle} - Requested by ${data.queue[0].requester}`).then(message => message.delete({timeout: 3000}));
-    var ops = {seek: 3, volume: 1, bitrate: 12800};
-    data.dispatcher = await data.connection.play(ytdl(data.queue[0].url, {filter: "audioonly"}), ops);
+    var ops = {seek: 0, volume: 1, bitrate: 512000};
+    data.dispatcher = await data.connection.play(ytdl(data.queue[0].url, {highWaterMark: (1024 * 1024 * 10), quality: 'highestaudio', filter: "audioonly"}), ops);
     data.dispatcher.guildID = data.guildID;
-    data.dispatcher.once("end", function() {
-        Finish(bot, options, this);
+    data.dispatcher.once("finish", function() {
+        Finish(bot, options, this, serv);
     })
 }
 
-function Finish(bot, options, dispatcher) {
+function Finish(bot, options, dispatcher, serv) {
     var fetchedData = options.active.get(dispatcher.guildID);
     fetchedData.queue.shift();
     if (fetchedData.queue.length > 0) {
@@ -62,8 +63,7 @@ function Finish(bot, options, dispatcher) {
         Play(bot, options, fetchedData);
     } else {
         options.active.delete(dispatcher.guildID);
-        var voiceChannel = bot.guilds.get(dispatcher.guildID).me.voiceChannel;
-        if (voiceChannel) voiceChannel.leave();
+        serv.me.voice.channel.leave();
     }
 }
 
