@@ -10,7 +10,7 @@ module.exports.run = async (bot, message, arguments, options) => {
 
     if (message.member.voiceChannel !== message.guild.me.voiceChannel) return message.channel.send("You're not in the right voice channel to do that!");
 
-    var amountOfUsers = message.member.voiceChannel.members.size;
+    var amountOfUsers = message.member.voice.channel.members.size;
 
     var amountToSkip = Math.ceil(amountOfUsers / 2);
 
@@ -24,14 +24,13 @@ module.exports.run = async (bot, message, arguments, options) => {
     
     if (guildIDData.queue[0].voteSkips.length >= amountToSkip){
         message.channel.send("Skipping this song...");
-        
-        return guildIDData.dispatcher.emit("end");
+        return guildIDData.dispatcher.emit("finish");
     }
 
-    message.channel.send(`Added to skiplist. ${guildIDData.queue[0].voteSkips.length} out of ${amountToSkip} votes.`);
+    message.reply(`has requested to skip this song. Now at ${guildIDData.queue[0].voteSkips.length} out of ${amountToSkip} votes.`);
 
 }
 
 module.exports.help = {
-    name: "unk"
+    name: "skip"
 }

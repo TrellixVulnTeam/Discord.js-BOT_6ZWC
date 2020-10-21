@@ -20,12 +20,12 @@ module.exports.run = async (bot, message, arguments) => {
     var stringEmbed = new discord.RichEmbed()
         .setColor("#cfb53b")
         .setTitle("GOD - Prefix Change")
-        .setDescription(`Het commandovoorvoegsel van God werd gewijzigd in "${arguments[0]}".`);
+        .setDescription(`The command prefix has been changed to: "${arguments[0]}".`);
 
     message.channel.send(stringEmbed);
 
 }
 
 module.exports.help = {
-    name: "unk"
+    name: "prefix"
 }
