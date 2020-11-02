@@ -1,71 +1,123 @@
-require("ffmpeg-static")
-const fs = require("fs")
+const { play } = require("./music.backstage.play");
 const ytdl = require("ytdl-core");
-const discord = require("discord.js");
+const YouTubeAPI = require("simple-youtube-api");
+const scdl = require("soundcloud-downloader");
 const botConfig = require("../botconfig.json");
+const fs = require("fs");
 
-module.exports.run = async (bot, message, arguments, options) => {
-    if(!message.member.voice.channel) return message.reply("You are not connected to a voice channel.").then(message => message.delete({timeout: 3000}));
-    if((message.guild.me.voice.channel != message.member.voice.channel) && (message.guild.me.voice.channel)) return message.reply("Already connected to a voice channel.").then(message => message.delete({timeout: 3000}));
-    if(!arguments[0]) return message.reply(`Syntax Error: 1 argument was expected, none were given. Use ${botConfig.prefix}help when struggeling.`).then(message => message.delete({timeout: 3000}));
-    if(arguments[1]) return message.reply(`Syntax Error: 1 argument was expected, 2+ were given: ${arguments}. Use ${botConfig.prefix}help when struggeling.`).then(message => message.delete({timeout: 3000}));
+let YOUTUBE_API_KEY, SOUNDCLOUD_CLIENT_ID;
+try {
+const config = require("./music.backstage.play.config.json");
+YOUTUBE_API_KEY = config.YOUTUBE_API_KEY;
+SOUNDCLOUD_CLIENT_ID = config.SOUNDCLOUD_CLIENT_ID;
+} catch (error) {
+  YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
+  SOUNDCLOUD_CLIENT_ID = process.env.SOUNDCLOUD_CLIENT_ID;
+}
+const youtube = new YouTubeAPI(YOUTUBE_API_KEY);
 
+module.exports.run = async (bot, message, arguments) => {
+    const channel = message.member.voice.channel;
+    
     if (!isNaN(arguments[0])) {
         index = Number(arguments[0])
         var jsonfile = JSON.parse(fs.readFileSync("./botconfig.json").toString());
         arguments[0] = jsonfile[index]
-        console.log(arguments[0])
     }
 
-    var validate = await ytdl.validateURL(arguments[0]);
-    if(!validate) return (`Excecution Error: the url provided does not exist. Use ${botConfig.prefix}help when struggeling.`);
+    const serverQueue = message.client.queue.get(message.guild.id);
+    if (!channel) return message.reply("You need to join a voice channel first!").catch(console.error);
+    if (serverQueue && channel !== message.guild.me.voice.channel)
+        return message.reply(`You must be in the same channel as ${message.client.user}`).catch(console.error);
 
-    var info = await ytdl.getInfo(arguments[0]);
-    var data = options.active.get(message.guild.id) || {};
-    if(!data.connection) data.connection = await message.member.voice.channel.join();
-    if(!data.queue) data.queue = [];
+    if (!arguments.length)
+        return message
+        .reply(`No arguments given.`)
+        .catch(console.error);
 
-    data.guildID = message.guild.id;
-    data.queue.push({
-        songTitle: info.videoDetails.title,
-        requester: message.author.tag,
-        url: arguments[0],
-        announcementChannel: message.channel.id
-    });
-    const serv = message.guild
-    message.delete();
-    if(!data.dispatcher){
-        Play(bot, options, data, serv);
-    } else{
-        message.channel.send(`Added ${info.videoDetails.title} to the queue - Requested by ${message.author.tag}`).then(message => message.delete({timeout: 3000}));
+    /*const permissions = channel.permissionsFor(message.client.user);
+    if (!permissions.has("CONNECT"))
+        return console.log("Cannot connect to voice channel, missing permissions");
+    if (!permissions.has("SPEAK"))
+        return console.log("I cannot speak in this voice channel, make sure I have the proper permissions!");*/
+
+    const search = arguments.join(" ");
+    const videoPattern = /^(https?:\/\/)?(www\.)?(m\.)?(youtube\.com|youtu\.?be)\/.+$/gi;
+    //const playlistPattern = /^.*(list=)([^#\&\?]*).*/gi;
+    const scRegex = /^https?:\/\/(soundcloud\.com)\/(.*)$/;
+    const url = arguments[0];
+    const urlValid = videoPattern.test(arguments[0]);
+    //console.log(`https://www.youtube.com/watch?v=rPAAoSFfFww == ${arguments[0]}:`, "https://www.youtube.com/watch?v=rPAAoSFfFww" ==arguments[0]);
+
+    /*// Start the playlist if playlist url was provided
+    if (!videoPattern.test(args[0]) && playlistPattern.test(args[0])) {
+        return message.client.commands.get("playlist").execute(message, args);
+    } else if (scdl.isValidUrl(url) && url.includes("/sets/")) {
+        return message.client.commands.get("playlist").execute(message, args);
+    }*/
+
+    const queueConstruct = {
+        textChannel: message.channel,
+        channel,
+        connection: null,
+        songs: [],
+        loop: false,
+        volume: 100,
+        playing: true
+    };
+
+    let songInfo = null;
+    let song = null;
+
+    if (urlValid) {
+        try {
+            console.log(url);
+        songInfo = await ytdl.getInfo(url);
+        song = {
+            title: songInfo.videoDetails.title,
+            url: songInfo.videoDetails.video_url,
+            duration: songInfo.videoDetails.lengthSeconds
+        };
+        } catch (error) {
+        console.error(error);
+        return message.reply(error.message).catch(console.error);
+        }
+    } else if (scRegex.test(url)) {
+        try {
+        const trackInfo = await scdl.getInfo(url, SOUNDCLOUD_CLIENT_ID);
+        song = {
+            title: trackInfo.title,
+            url: trackInfo.permalink_url,
+            duration: Math.ceil(trackInfo.duration / 1000)
+        };
+        } catch (error) {
+        if (error.statusCode === 404)
+            return message.reply("Could not find that Soundcloud track.").catch(console.error);
+        return message.reply("There was an error playing that Soundcloud track.").catch(console.error);
+        }
+    } else return message.reply("Not a valid URL").catch(console.log("Not a valid URL"))
+
+    if (serverQueue) {
+        serverQueue.songs.push(song);
+        return serverQueue.textChannel
+        .send(`✅ **${song.title}** has been added to the queue by ${message.author}`)
+        .catch(console.error);
     }
 
-    options.active.set(message.guild.id, data);
-    var options = {seek: 0, volume: 1};
-    
-}
+    queueConstruct.songs.push(song);
+    message.client.queue.set(message.guild.id, queueConstruct);
 
-async function Play(bot, options, data, serv){
-    bot.channels.cache.get(data.queue[0].announcementChannel).send(`Now playing: ${data.queue[0].songTitle} - Requested by ${data.queue[0].requester}`).then(message => message.delete({timeout: 3000}));
-    var ops = {seek: 0, volume: 1, bitrate: 512000};
-    data.dispatcher = await data.connection.play(ytdl(data.queue[0].url, {highWaterMark: (1024 * 1024 * 10), quality: 'highestaudio', filter: "audioonly"}), ops);
-    data.dispatcher.guildID = data.guildID;
-    data.dispatcher.once("finish", function() {
-        Finish(bot, options, this, serv);
-    })
-}
-
-function Finish(bot, options, dispatcher, serv) {
-    var fetchedData = options.active.get(dispatcher.guildID);
-    fetchedData.queue.shift();
-    if (fetchedData.queue.length > 0) {
-        options.active.set(dispatcher.guildID, fetchedData);
-        Play(bot, options, fetchedData);
-    } else {
-        options.active.delete(dispatcher.guildID);
-        serv.me.voice.channel.leave();
+    try {
+        queueConstruct.connection = await channel.join();
+        await queueConstruct.connection.voice.setSelfDeaf(true);
+        play(queueConstruct.songs[0], message);
+    } catch (error) {
+        console.error(error);
+        message.client.queue.delete(message.guild.id);
+        await channel.leave();
+        return message.channel.send(`Could not join the channel: ${error}`).catch(console.error);
     }
-}
+};
 
 module.exports.help = {
     name: "play"

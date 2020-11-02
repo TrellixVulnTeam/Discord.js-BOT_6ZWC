@@ -275,7 +275,9 @@ var request = require("request");
 bot.on("ready", async () => {
     console.log(`${bot.user.username} is online!`);
 
-    var prefixes = JSON.parse(fs.readFileSync("./prefixes.json"));
+    bot.queue = new Map();
+
+    /*var prefixes = JSON.parse(fs.readFileSync("./prefixes.json"));
 
     if (!prefixes[serverid]){
         prefixes[serverid] = {
@@ -287,7 +289,7 @@ bot.on("ready", async () => {
         });
     }
 
-    var prefix = prefixes[serverid].prefixes;
+    var prefix = prefixes[serverid].prefixes;*/
 
     global.scrollStatusInterval = setInterval(scrollStatus, 30000); //default: 15000
 });
@@ -301,12 +303,12 @@ bot.on("message", async message => {
     if (message.channel.type === "dm") return;
 
     if(message.content.includes("unk")) {
-        message.reply("The word \"unk\" is temporarily banned whilest GOD is online.");
+        message.reply("The word \"unk\" is temporarily banned whilst GOD is online.");
         message.delete();
         return;
     }
 
-    var prefixes = JSON.parse(fs.readFileSync("./prefixes.json"));
+    /*var prefixes = JSON.parse(fs.readFileSync("./prefixes.json"));
 
 
     if (!prefixes[message.guild.id]){
@@ -318,7 +320,11 @@ bot.on("message", async message => {
         });
     }
 
-    var prefix = prefixes[message.guild.id].prefixes;
+    var prefix = prefixes[message.guild.id].prefixes;*/
+    var prefix = String(botConfig.prefix);
+    if (!message.content.startsWith(prefix)) return
+
+
     var messageArray = message.content.split(" ");
     var command = messageArray[0];
     var arguments = messageArray.slice(1);
