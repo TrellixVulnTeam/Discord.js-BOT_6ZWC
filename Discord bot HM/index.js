@@ -275,6 +275,8 @@ var request = require("request");
 bot.on("ready", async () => {
     console.log(`${bot.user.username} is online!`);
 
+    bot.queue = new Map();
+
     /*var prefixes = JSON.parse(fs.readFileSync("./prefixes.json"));
 
     if (!prefixes[serverid]){

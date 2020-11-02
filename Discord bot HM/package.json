@@ -33,9 +33,12 @@
     "pnpm": "^4.11.1",
     "request": "^2.88.2",
     "selenium-webdriver": "^4.0.0-alpha.7",
+    "simple-youtube-api": "^5.2.1",
+    "soundcloud-downloader": "^0.1.8",
     "ws": "^7.2.1",
     "yt-search": "^2.2.4",
-    "ytdl-core": "^3.2.1"
+    "ytdl-core": "^3.4.2",
+    "ytdl-core-discord": "^1.2.4"
   },
   "devDependencies": {
     "nodemon": "^2.0.2"
