@@ -29,9 +29,11 @@ function scrollStatus() {
             } else {
                 var soup = new JSSoup(body);
                 var element = soup.findAll("h2");
-                var text = element[1].text;
-                text = text.replace(" hours past 2 weeks", "");
-                bot.user.setActivity(String("games for " + text + " hours"), {type: "PLAYING"});
+                if (element[1]){
+                    var text = element[1].text;
+                    text = text.replace(" hours past 2 weeks", "");
+                    bot.user.setActivity(String("games for " + text + " hours"), {type: "PLAYING"});
+                }
             }
         });
     } catch(err) {
