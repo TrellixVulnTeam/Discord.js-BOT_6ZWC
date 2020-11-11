@@ -21,18 +21,22 @@ var nextActivity = "me launch...";
 var nextActivityType = "WATCHING";
 
 function scrollStatus() {
-    var arneurl = "https://steamcommunity.com/profiles/76561198160902956";
-    request(arneurl, {cache: "no-store"}, function(err, responce, body){
-        if (err) {
-            console.log(err);
-        } else {
-            var soup = new JSSoup(body);
-            var element = soup.findAll("h2");
-            var text = element[1].text;
-            text = text.replace(" hours past 2 weeks", "");
-            bot.user.setActivity(String("games for " + text + " hours"), {type: "PLAYING"});
-        }
-    });
+    try {
+        var arneurl = "https://steamcommunity.com/profiles/76561198160902956";
+        request(arneurl, {cache: "no-store"}, function(err, responce, body){
+            if (err) {
+                console.log(err);
+            } else {
+                var soup = new JSSoup(body);
+                var element = soup.findAll("h2");
+                var text = element[1].text;
+                text = text.replace(" hours past 2 weeks", "");
+                bot.user.setActivity(String("games for " + text + " hours"), {type: "PLAYING"});
+            }
+        });
+    } catch(err) {
+        console.log(err);
+    }
     if (scrollCount == 1) {
         var mcIP = "server.heiligemaagden.com";
         var url = "https://api.mcsrvstat.us/2/" + mcIP;
