@@ -5,6 +5,7 @@ const botConfig = require("./botconfig.json");
 const {Builder, By, Key, until} = require("selenium-webdriver");
 const webdriver = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
+const JSSoup = require("jssoup").default;
 require("chromedriver");
 
 const active = new Map();
@@ -20,7 +21,24 @@ var nextActivity = "me launch...";
 var nextActivityType = "WATCHING";
 
 function scrollStatus() {
-    bot.user.setActivity(nextActivity, {type: nextActivityType});
+    try {
+        var arneurl = "https://steamcommunity.com/profiles/76561198160902956";
+        request(arneurl, {cache: "no-store"}, function(err, responce, body){
+            if (err) {
+                console.log(err);
+            } else {
+                var soup = new JSSoup(body);
+                var element = soup.findAll("h2");
+                if (element[1]){
+                    var text = element[1].text;
+                    text = text.replace(" hours past 2 weeks", "");
+                    bot.user.setActivity(String("games for " + text + " hours"), {type: "PLAYING"});
+                }
+            }
+        });
+    } catch(err) {
+        console.log(err);
+    }
     if (scrollCount == 1) {
         var mcIP = "server.heiligemaagden.com";
         var url = "https://api.mcsrvstat.us/2/" + mcIP;
