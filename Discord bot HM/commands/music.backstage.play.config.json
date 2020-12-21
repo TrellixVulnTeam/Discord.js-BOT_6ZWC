@@ -1,7 +1,6 @@
 
 {
     "YOUTUBE_API_KEY": "AIzaSyC635nk9YgDc0inDKeMzb9e2Z7eGWvWTQM",
-    "SOUNDCLOUD_CLIENT_ID": "yLDMxXMZsSiBSpUG5psrlryn56TID1wS",
     "MAX_PLAYLIST_SIZE": 10,
     "PRUNING": false
   }

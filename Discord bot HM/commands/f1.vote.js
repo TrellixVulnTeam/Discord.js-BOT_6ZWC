@@ -6,7 +6,7 @@ module.exports.run = async (bot, message, arguments) => {
         .setColor("#ff1801")
         .setAuthor("FIA - Formula One", "https://www.formula1.com/etc/designs/fom-website/images/fia_logo.png", "https://www.formula1.com/")
         .setTitle("Driver Of The Day")
-        .setDescription("Go vote for the driver of the day over at https://www.formula1.com/en/vote.html! Make sure to vote before the end of the race.")
+        .setDescription("Go vote for the driver of the day over at https://www.formula1.com/en/vote.html and make sure to vote before the end of the race!")
         .setThumbnail("https://www.dhlexpress.be/wp-content/uploads/2017/02/dhl-logo.png");
     embed2 = new discord.MessageEmbed()
         .setColor("#ff1801")
