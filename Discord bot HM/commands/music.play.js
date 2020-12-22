@@ -1,18 +1,16 @@
 const { play } = require("./music.backstage.play");
+const { Util } = require("discord.js")
 const ytdl = require("ytdl-core");
 const YouTubeAPI = require("simple-youtube-api");
-const scdl = require("soundcloud-downloader");
 const botConfig = require("../botconfig.json");
 const fs = require("fs");
 
-let YOUTUBE_API_KEY, SOUNDCLOUD_CLIENT_ID;
+let YOUTUBE_API_KEY
 try {
 const config = require("./music.backstage.play.config.json");
 YOUTUBE_API_KEY = config.YOUTUBE_API_KEY;
-SOUNDCLOUD_CLIENT_ID = config.SOUNDCLOUD_CLIENT_ID;
 } catch (error) {
   YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
-  SOUNDCLOUD_CLIENT_ID = process.env.SOUNDCLOUD_CLIENT_ID;
 }
 const youtube = new YouTubeAPI(YOUTUBE_API_KEY);
 
@@ -35,26 +33,10 @@ module.exports.run = async (bot, message, arguments) => {
         .reply(`No arguments given.`)
         .catch(console.error);
 
-    /*const permissions = channel.permissionsFor(message.client.user);
-    if (!permissions.has("CONNECT"))
-        return console.log("Cannot connect to voice channel, missing permissions");
-    if (!permissions.has("SPEAK"))
-        return console.log("I cannot speak in this voice channel, make sure I have the proper permissions!");*/
-
     const search = arguments.join(" ");
     const videoPattern = /^(https?:\/\/)?(www\.)?(m\.)?(youtube\.com|youtu\.?be)\/.+$/gi;
-    //const playlistPattern = /^.*(list=)([^#\&\?]*).*/gi;
-    const scRegex = /^https?:\/\/(soundcloud\.com)\/(.*)$/;
     const url = arguments[0];
     const urlValid = videoPattern.test(arguments[0]);
-    //console.log(`https://www.youtube.com/watch?v=rPAAoSFfFww == ${arguments[0]}:`, "https://www.youtube.com/watch?v=rPAAoSFfFww" ==arguments[0]);
-
-    /*// Start the playlist if playlist url was provided
-    if (!videoPattern.test(args[0]) && playlistPattern.test(args[0])) {
-        return message.client.commands.get("playlist").execute(message, args);
-    } else if (scdl.isValidUrl(url) && url.includes("/sets/")) {
-        return message.client.commands.get("playlist").execute(message, args);
-    }*/
 
     const queueConstruct = {
         textChannel: message.channel,
@@ -72,28 +54,15 @@ module.exports.run = async (bot, message, arguments) => {
     if (urlValid) {
         try {
             console.log(url);
-        songInfo = await ytdl.getInfo(url);
-        song = {
-            title: songInfo.videoDetails.title,
-            url: songInfo.videoDetails.video_url,
-            duration: songInfo.videoDetails.lengthSeconds
-        };
+            songInfo = await ytdl.getInfo(url);
+            song = {
+                title: songInfo.videoDetails.title,
+                url: songInfo.videoDetails.video_url,
+                duration: songInfo.videoDetails.lengthSeconds
+            }
         } catch (error) {
-        console.error(error);
-        return message.reply(error.message).catch(console.error);
-        }
-    } else if (scRegex.test(url)) {
-        try {
-        const trackInfo = await scdl.getInfo(url, SOUNDCLOUD_CLIENT_ID);
-        song = {
-            title: trackInfo.title,
-            url: trackInfo.permalink_url,
-            duration: Math.ceil(trackInfo.duration / 1000)
-        };
-        } catch (error) {
-        if (error.statusCode === 404)
-            return message.reply("Could not find that Soundcloud track.").catch(console.error);
-        return message.reply("There was an error playing that Soundcloud track.").catch(console.error);
+            console.error(error);
+            return message.reply(error.message).catch(console.error);
         }
     } else return message.reply("Not a valid URL").catch(console.log("Not a valid URL"))
 

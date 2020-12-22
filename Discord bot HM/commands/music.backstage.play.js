@@ -1,18 +1,16 @@
 const ytdlDiscord = require("ytdl-core-discord");
-const scdl = require("soundcloud-downloader");
+const ytdl = require('ytdl-core');
 const { canModifyQueue } = require("./music.backstage.play.util");
+const { Util } = require("discord.js");
+const fs = require("fs");
 
 module.exports = {
   async play(song, message) {
-    let PRUNING, SOUNDCLOUD_CLIENT_ID;
-
     try {
       const config = require("./music.backstage.play.config.json");
       PRUNING = config.PRUNING;
-      SOUNDCLOUD_CLIENT_ID = config.SOUNDCLOUD_CLIENT_ID;
     } catch (error) {
       PRUNING = process.env.PRUNING;
-      SOUNDCLOUD_CLIENT_ID = process.env.SOUNDCLOUD_CLIENT_ID;
     }
     const queue = message.client.queue.get(message.guild.id);
 
@@ -25,42 +23,12 @@ module.exports = {
     let stream = null;
     let streamType = song.url.includes("youtube.com") ? "opus" : "ogg/opus";
 
-    try {
-      if (song.url.includes("youtube.com")) {
-        stream = await ytdlDiscord(song.url, { highWaterMark: 1 << 25 });
-      } else if (song.url.includes("soundcloud.com")) {
-        try {
-          stream = await scdl.downloadFormat(
-            song.url,
-            scdl.FORMATS.OPUS,
-            SOUNDCLOUD_CLIENT_ID ? SOUNDCLOUD_CLIENT_ID : undefined
-          );
-        } catch (error) {
-          stream = await scdl.downloadFormat(
-            song.url,
-            scdl.FORMATS.MP3,
-            SOUNDCLOUD_CLIENT_ID ? SOUNDCLOUD_CLIENT_ID : undefined
-          );
-          streamType = "unknown";
-        }
-      }
-    } catch (error) {
-      if (queue) {
-        queue.songs.shift();
-        module.exports.play(queue.songs[0], message);
-      }
-
-      console.error(error);
-      return message.channel.send(`Error: ${error.message ? error.message : error}`);
-    }
-
     queue.connection.on("disconnect", () => message.client.queue.delete(message.guild.id));
 
     const dispatcher = queue.connection
-      .play(stream, { type: streamType })
+      .play(ytdl(song.url))
       .on("finish", () => {
         if (collector && !collector.ended) collector.stop();
-
         if (queue.loop) {
           // if loop is on, push the song back at the end of the queue
           // so it can repeat endlessly
