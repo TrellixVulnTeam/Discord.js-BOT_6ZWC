@@ -5,7 +5,7 @@ const { Util } = require("discord.js");
 const fs = require("fs");
 
 module.exports = {
-  async play(song, bot, interaction) {
+  async play(song, bot, interaction, urltype) {
     try {
       const config = require("./music.backstage.play.config.json");
       PRUNING = config.PRUNING;
@@ -42,23 +42,24 @@ module.exports = {
         if (queue.loop) {
           // if loop is on, push the song back at the end of the queue
           // so it can repeat endlessly
+          urltype = "number"
           let lastSong = queue.songs.shift();
           queue.songs.push(lastSong);
-          module.exports.play(queue.songs[0], bot, interaction);
+          module.exports.play(queue.songs[0], bot, interaction, urltype);
         } else {
           // Recursively play the next song
           queue.songs.shift();
-          module.exports.play(queue.songs[0], bot, interaction);
+          module.exports.play(queue.songs[0], bot, interaction, urltype);
         }
       })
       .on("error", (err) => {
         console.error(err);
         queue.songs.shift();
-        module.exports.play(queue.songs[0], bot, interaction);
+        module.exports.play(queue.songs[0], bot, interaction, urltype);
       });
     dispatcher.setVolumeLogarithmic(queue.volume / 100);
 
-    const member = bot.guilds.cache.get(interaction.guild_id).members.cache.get(interaction.member.user.id);
+    const member = await bot.guilds.cache.get(interaction.guild_id).members.cache.get(interaction.member.user.id);
 
     try {
       await bot.api.interactions(interaction.id, interaction.token).callback.post({
@@ -66,7 +67,8 @@ module.exports = {
           type: 5
         }
       })
-      var playingMessage = await queue.textChannel.send(`🎶 Started playing: **${song.title}**`);
+      if (urltype == "url") var playingMessage = await queue.textChannel.send(`🎶 Started playing: **${song.title}**`);
+      else if (urltype == "number") var playingMessage = await queue.textChannel.send(`🎶 Started playing: **${song.title}**\n${song.url}`);
       await playingMessage.react("⏹");
       await playingMessage.react("⏯");
       await playingMessage.react("⏭");
