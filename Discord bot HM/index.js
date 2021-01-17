@@ -1,274 +1,14 @@
 const discord = require("discord.js");
-
 const botConfig = require("./botconfig.json");
-
-const {Builder, By, Key, until} = require("selenium-webdriver");
-const webdriver = require("selenium-webdriver");
-const chrome = require("selenium-webdriver/chrome");
-const JSSoup = require("jssoup").default;
-require("chromedriver");
-
-const active = new Map();
-
-var serverid = "585896430380777503";
-
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-};
-
-var scrollCount = 1;
-var nextActivity = "me launch...";
-var nextActivityType = "WATCHING";
-
-function scrollStatus() {
-    try {
-        var arneurl = "https://steamcommunity.com/profiles/76561198160902956";
-        request(arneurl, {cache: "no-store"}, function(err, responce, body){
-            if (err) {
-                console.log(err);
-            } else {
-                var soup = new JSSoup(body);
-                var element = soup.findAll("h2");
-                if (element[1]){
-                    var text = element[1].text;
-                    text = text.replace(" hours past 2 weeks", "");
-                    bot.user.setActivity(String("games for " + text + " hours"), {type: "PLAYING"});
-                }
-            }
-        });
-    } catch(err) {
-        console.log(err);
-    }
-    if (scrollCount == 1) {
-        var mcIP = "server.heiligemaagden.com";
-        var url = "https://api.mcsrvstat.us/2/" + mcIP;
-
-        request(url, {cache: 'no-store'}, function(err, responce, body){
-            if (err) {
-                console.log(err);
-            } else if (!body.startsWith("<")) {
-                body = JSON.parse(body);
-            } else {
-                bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden S")).setName("Heilige Maagden S ⚫️");
-                return
-            }
-            if (body.online == true) {
-                var maxplayers = body.players.max;
-                if (body.players.online >= 1) {
-                    var players = body.players.online;
-                    nextActivity = `HMS: ${players} out of ${maxplayers}`;
-                    nextActivityType = "PLAYING";
-                    bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden S")).setName("Heilige Maagden S 🟢");
-                } else if (body.players.online < 1) {
-                    var players = 0;
-                    nextActivity = `HMS: nobody`;
-                    nextActivityType = "PLAYING";
-                    bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden S")).setName("Heilige Maagden S 🟢");
-                }
-            } else if(body.online == false){
-                nextActivity = `HMS server fail`;
-                nextActivityType = "WATCHING";
-                bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden S")).setName("Heilige Maagden S 🔴");
-            } else {
-                bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden S")).setName("Heilige Maagden S ⚫️");
-            }
-        });
-    } else if (scrollCount == 2) {
-        var mcIP = "creative.heiligemaagden.com";
-        var url = "https://api.mcsrvstat.us/2/" + mcIP;
-
-        request(url, {cache: 'no-store'}, function(err, responce, body){
-            if (err) {
-                console.log(err);
-            } else if (!body.startsWith("<")) {
-                body = JSON.parse(body);
-            } else {
-                bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden C")).setName("Heilige Maagden C ⚫️");
-                return
-            }
-            if (body.online == true) {
-                var maxplayers = body.players.max;
-                if (body.players.online >= 1) {
-                    var players = body.players.online;
-                    nextActivity = `HMC: ${players} out of ${maxplayers}`;
-                    nextActivityType = "PLAYING";
-                    bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden C")).setName("Heilige Maagden C 🟢");
-                } else if (body.players.online < 1) {
-                    var players = 0;
-                    nextActivity = `HMC: nobody`;
-                    nextActivityType = "PLAYING";
-                    bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden C")).setName("Heilige Maagden C 🟢");
-                }
-            } else if (body.online == false){
-                nextActivity = `HMC server fail`;
-                nextActivityType = "WATCHING";
-                bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden C")).setName("Heilige Maagden C 🔴");
-            } else {
-                bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden C")).setName("Heilige Maagden C ⚫️");
-            }
-        });
-    } else if (scrollCount == 3) {
-        var mcIP = "play.cubecraft.net";
-        var url = "https://api.mcsrvstat.us/2/" + mcIP;
-
-        request(url, {cache: 'no-store'}, function(err, responce, body){
-            if (err) {
-                console.log(err);
-            } else if (!body.startsWith("<")) {
-                body = JSON.parse(body);
-            } else {
-                bot.channels.cache.find(channel => channel.name.startsWith("Cubecraft")).setName("Cubecraft ⚫️");
-                return
-            }
-            if (body.online == true) {
-                var maxplayers = body.players.max;
-                if (body.players.online >= 1) {
-                    var players = body.players.online;
-                    nextActivity = `CUB: ${players} out of ${maxplayers}`;
-                    nextActivityType = "PLAYING";
-                    bot.channels.cache.find(channel => channel.name.startsWith("Cubecraft")).setName("Cubecraft 🟢");
-                } else if (body.players.online < 1) {
-                    var players = 0;
-                    nextActivity = `CUB: nobody`;
-                    nextActivityType = "PLAYING";
-                    bot.channels.cache.find(channel => channel.name.startsWith("Cubecraft")).setName("Cubecraft 🟢");
-                }
-            } else if (body.online == false){
-                nextActivity = `CUB server fail`;
-                nextActivityType = "WATCHING";
-                bot.channels.cache.find(channel => channel.name.startsWith("Cubecraft")).setName("Cubecraft 🔴");
-            } else {
-                bot.channels.cache.find(channel => channel.name.startsWith("Cubecraft")).setName("Cubecraft ⚫️");
-            }
-        });
-    } else if (scrollCount == 4) {
-        global.smoothElements = undefined;
-        var map = webdriver.promise.map;
-        (async function r6scrape() {
-            var options = new chrome.Options();
-            options.headless();
-            options.windowSize({width: 640, height: 480});
-            options.excludeSwitches("enable-logging");
-            let driver = await new Builder().forBrowser('chrome').setChromeOptions(options).build();
-            try {
-                await driver.get("https://rainbow6.ubisoft.com/status/");
-                await driver.wait(until.elementLocated(By.className("py-2 my-0 flex-fill contracted")));
-                var smallElement = (await driver.findElement(By.xpath('//*[@id="root"]/main/div/div/div[1]/div/ul[1]/li/span/small')).getText()).toString();
-            } finally {
-                setTimeout(() => {
-                    driver.quit();
-                    if (smallElement == "Aucun problème") {
-                        bot.channels.cache.find(channel => channel.name.startsWith("Rainbow Six Siege")).setName("Rainbow Six Siege 🟢");
-                        nextActivity = "GTA: possible.";
-                        nextActivityType = "PLAYING";
-                    } else if (smallElement) {
-                        bot.channels.cache.find(channel => channel.name.startsWith("Rainbow Six Siege")).setName("Rainbow Six Siege 🔴");
-                        nextActivity = "GTA servers fail";
-                        nextActivityType = "WATCHING";
-                    } else {
-                        bot.channels.cache.find(channel => channel.name.startsWith("Rainbow Six Siege")).setName("Rainbow Six Siege ⚫️");
-                    }
-                }, 2000);
-            }
-        }) ();
-    } else if (scrollCount == 5) {
-        var mcIP = "denaaron.heiligemaagden.com";
-        var url = "https://api.mcsrvstat.us/2/" + mcIP;
-
-        request(url, {cache: 'no-store'}, function(err, responce, body){
-            if (err) {
-                console.log(err);
-            } else if (!body.startsWith("<")) {
-                body = JSON.parse(body);
-            } else {
-                bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden A")).setName("Heilige Maagden A ⚫️");
-                return
-            }
-            if (body.online == true) {
-                var maxplayers = body.players.max;
-                if (body.players.online >= 1) {
-                    var players = body.players.online;
-                    nextActivity = `HMC: ${players} out of ${maxplayers}`;
-                    nextActivityType = "PLAYING";
-                    bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden A")).setName("Heilige Maagden A 🟢");
-                } else if (body.players.online < 1) {
-                    var players = 0;
-                    nextActivity = `HMC: nobody`;
-                    nextActivityType = "PLAYING";
-                    bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden A")).setName("Heilige Maagden A 🟢");
-                }
-            } else if (body.online == false){
-                nextActivity = `HMC server fail`;
-                nextActivityType = "WATCHING";
-                bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden A")).setName("Heilige Maagden A 🔴");
-            } else {
-                bot.channels.cache.find(channel => channel.name.startsWith("Heilige Maagden A")).setName("Heilige Maagden A ⚫️");
-            }
-        });
-    } else if (scrollCount == 6) {
-        global.smoothElements = undefined;
-        var map = webdriver.promise.map;
-        (async function gtascrape() {
-            var options = new chrome.Options();
-            options.headless();
-            options.windowSize({width: 640, height: 480});
-            options.excludeSwitches("enable-logging");
-            let driver = await new Builder().forBrowser('chrome').setChromeOptions(options).build();
-            try {
-                await driver.get("https://support.rockstargames.com/servicestatus");
-                await driver.wait(until.elementLocated(By.className("status visible")));
-                var rawElements = driver.findElements(By.xpath("//div[@class='flex-xxs-7 flex-xs-12']/div[@class='platforms']/div"));
-                map(rawElements, e => e.getAttribute("aria-label")).then(function(values) {
-                    smoothElements = values;
-                });
-            } finally {
-                setTimeout(() => {
-                    driver.quit();
-                    smoothElements.splice(0, 4);
-                    smoothElements.splice(1, 4);
-                    var serverStatus = "UP";
-                    DOWNLOOP: for (var i=0; i < smoothElements.length; i++) {
-                        UPLOOP: if (smoothElements[i].endsWith("UP")) {
-                            break UPLOOP;
-                        } else if (smoothElements[i].endsWith("DOWN")) {
-                            serverStatus = "DOWN";
-                            break DOWNLOOP;
-                        } else {
-                            if (serverStatus != "DOWN") {
-                                serverStatus = "LIMITED";
-                                break UPLOOP;
-                            }
-                        }
-                    }
-                    if (serverStatus == "UP") {
-                        bot.channels.cache.find(channel => channel.name.startsWith("GTA Online")).setName("GTA Online 🟢");
-                        nextActivity = "GTA: possible.";
-                        nextActivityType = "PLAYING";
-                    } else if (serverStatus == "LIMITED") {
-                        bot.channels.cache.find(channel => channel.name.startsWith("GTA Online")).setName("GTA Online 🟠");
-                        nextActivity = "GTA: limited.";
-                        nextActivityType = "PLAYING";
-                    } else if (serverStatus == "DOWN") {
-                        bot.channels.cache.find(channel => channel.name.startsWith("GTA Online")).setName("GTA Online 🔴");
-                        nextActivity = "GTA servers fail";
-                        nextActivityType = "WATCHING";
-                    } else {
-                        bot.channels.cache.find(channel => channel.name.startsWith("GTA Online")).setName("GTA Online ⚫️");
-                    }
-                }, 2000);
-            }
-        }) ();
-    }
-    scrollCount ++;
-    if (scrollCount > 6) {scrollCount = 1};
-};
-
 const fs = require("fs");
+const { commands } = require("npm");
+console.log("logging in");
+
 
 const bot = new discord.Client();
 bot.commands = new discord.Collection();
 
-fs.readdir("./commands/", (err, files) => {
+/*fs.readdir("./commands/", (err, files) => {
 
     if (err) console.log(err);
 
@@ -282,39 +22,162 @@ fs.readdir("./commands/", (err, files) => {
     jsFiles.forEach((f, i) => {
         var fileGet = require(`./commands/${f}`);
         console.log(`The file ${f} was loaded`);
-
-        bot.commands.set(fileGet.help.name, fileGet);
+        console.log(fileGet)
+        botcommands.push({
+            key: f,
+            value: fileGet
+        })
     })
+    console.log(bot.commands)
 
-});
-
-var request = require("request");
+});*/
 
 bot.on("ready", async () => {
     console.log(`${bot.user.username} is online!`);
-
     bot.queue = new Map();
-
-    /*var prefixes = JSON.parse(fs.readFileSync("./prefixes.json"));
-
-    if (!prefixes[serverid]){
-        prefixes[serverid] = {
-             prefixes: botConfig.prefix
-        };
-        console.log(prefixes);
-        fs.writeFileSync("./prefixes.json", JSON.stringify(prefixes), (err) => {
-            if (err) console.log(err);
-        });
-    }
-
-    var prefix = prefixes[serverid].prefixes;*/
-
-    global.scrollStatusInterval = setInterval(scrollStatus, 30000); //default: 15000
+    
+    bot.api.applications(bot.user.id).guilds("585896430380777503").commands.post({
+        data: {
+            name: "ping",
+            description: "Get the connection delay between you and GOD."
+        }
+    })
+    bot.api.applications(bot.user.id).guilds("585896430380777503").commands.post({
+        data: {
+            name: "echo",
+            description: "Make GOD say a message in the #general text channel.",
+            options: [
+                {
+                    type: 3,
+                    required: true,
+                    name: "message",
+                    description: "The message GOD should repeat."
+                }
+            ]
+        }
+    })
+    bot.api.applications(bot.user.id).guilds("585896430380777503").commands.post({
+        data: {
+            name: "clear",
+            description: "Clear a number of recent messages from a text channel.",
+            options: [
+                {
+                    type: 4,
+                    required: true,
+                    name: "amount",
+                    description: "The amount of messages to delete."
+                },
+                {
+                    type: 3,
+                    required: false,
+                    name: "channel_id",
+                    description: "The id of the channel in which you want to delete messages."
+                }
+            ]
+        }
+    })
+    bot.api.applications(bot.user.id).guilds("585896430380777503").commands.post({
+        data: {
+            name: "shutdown",
+            description: "Shutdown the bot user."
+        }
+    })
+    bot.api.applications(bot.user.id).guilds("585896430380777503").commands.post({
+        data: {
+            name: "music",
+            description: "The built-in discord music player.",
+            options: [
+                {
+                    type: 1,
+                    name: "play",
+                    description: "Make the bot play a song in a voice channel.",
+                    options: [
+                        {
+                            type: 3,
+                            name: "URL",
+                            description: "Enter the YouTube video url."
+                        },
+                        {
+                            type: 4,
+                            name: "Number",
+                            description: "The number of the song given by the `/music search` command.",
+                            choices: [
+                                {
+                                    name: `1 | ${botConfig["1_name"]}`,
+                                    value: 1
+                                },
+                                {
+                                    name: `2️ | ${botConfig["2_name"]}`,
+                                    value: 2
+                                },
+                                {
+                                    name: `3️ | ${botConfig["3_name"]}`,
+                                    value: 3
+                                },
+                                {
+                                    name: `4️ | ${botConfig["4_name"]}`,
+                                    value: 4
+                                },
+                                {
+                                    name: `5 | ${botConfig["5_name"]}`,
+                                    value: 5
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    type: 1,
+                    name: "search",
+                    description: "Search for a song to play on youtube.",
+                    options: [
+                        {
+                            type: 3,
+                            required: true,
+                            name: "title",
+                            description: "Enter keywords related to the song in order to find it."
+                        }
+                    ]
+                }/*,
+                {
+                    type: 1,
+                    name: "share",
+                    description: "Share a song to the server."
+                }*/
+            ]
+        }
+    })
 });
 
-var request = require("request");
+bot.ws.on('INTERACTION_CREATE', async interaction => {
+    if (interaction.data.name == "ping") {
+        const ping = require("./commands/ping.js");
+        await ping.main(bot, interaction);
+    } else if (interaction.data.name == "echo") {
+        const echo = require("./commands/echo.js");
+        await echo.main(bot, interaction);
+    } else if (interaction.data.name == "clear") {
+        const clear = require("./commands/clear.js");
+        await clear.main(bot, interaction);
+    } else if (interaction.data.name == "shutdown") {
+        const shutdown = require("./commands/shutdown.js");
+        await shutdown.main(bot, interaction);
+    } else if (interaction.data.name == "shutdown") {
+        console.log(options)
+    } else if (interaction.data.name == "music") {
+        console.log(interaction, "----", interaction.data.options[0].name);
+        if (interaction.data.options[0].name == "play") {
+            const play = require("./commands/music.play.js");
+            await play.main(bot, interaction);
+        } else if (interaction.data.options[0].name == "search") {
+            const search = require("./commands/music.search.js");
+            await search.main(bot, interaction);
+        }
+    }
+    //console.log(interaction.data.name);
+})
 
-bot.on("message", async message => {
+/* bot.on("message", async message => {
 
     if (message.author.bot) return;
 
@@ -326,7 +189,7 @@ bot.on("message", async message => {
         return;
     }
 
-    /*var prefixes = JSON.parse(fs.readFileSync("./prefixes.json"));
+    *//*var prefixes = JSON.parse(fs.readFileSync("./prefixes.json"));
 
 
     if (!prefixes[message.guild.id]){
@@ -338,7 +201,7 @@ bot.on("message", async message => {
         });
     }
 
-    var prefix = prefixes[message.guild.id].prefixes;*/
+    var prefix = prefixes[message.guild.id].prefixes;*//*
     var prefix = String(botConfig.prefix);
     if (!message.content.startsWith(prefix)) return
 
@@ -382,7 +245,6 @@ bot.on("message", async message => {
         }
     }
 
-});
+}); */
 
-console.log("logging in");
 bot.login(botConfig.token).catch(console.error);
