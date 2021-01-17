@@ -14,32 +14,51 @@ YOUTUBE_API_KEY = config.YOUTUBE_API_KEY;
 }
 const youtube = new YouTubeAPI(YOUTUBE_API_KEY);
 
-module.exports.run = async (bot, message, arguments) => {
-    const channel = message.member.voice.channel;
-    
-    if (!isNaN(arguments[0])) {
-        index = Number(arguments[0])
-        var jsonfile = JSON.parse(fs.readFileSync("./botconfig.json").toString());
-        arguments[0] = jsonfile[index]
+async function main(bot, interaction) {
+    console.log(bot.guilds.cache.get(interaction.guild_id).members.cache.get(interaction.member.user.id));
+    //const channel = interaction.member.voice.channel;
+    const channel = bot.guilds.cache.get(interaction.guild_id).members.cache.get(interaction.member.user.id).voice.channel;
+    var arguments = [ "" ]
+    console.log(interaction.data.options[0].options[0].name)
+    if (interaction.data.options[0].options[0].name == "url") arguments[0] = interaction.data.options[0].options[0].value;
+    else if (interaction.data.options[0].options[0].name == "number") arguments[0] = interaction.data.options[0].options[0].value;
+    else arguments[0] = 1
+
+    const serverQueue = bot.queue.get(interaction.guild_id);
+    //if (!channel) return message.reply("You need to join a voice channel first!").catch(console.error);
+    if (!channel) {
+        bot.api.interactions(interaction.id, interaction.token).callback.post({
+            data: {
+                type: 4,
+                data: {
+                    content: "You need to join a voice channel first!"
+                }
+            }
+        }).catch(console.error);
+        return
     }
-
-    const serverQueue = message.client.queue.get(message.guild.id);
-    if (!channel) return message.reply("You need to join a voice channel first!").catch(console.error);
-    if (serverQueue && channel !== message.guild.me.voice.channel)
-        return message.reply(`You must be in the same channel as ${message.client.user}`).catch(console.error);
-
-    if (!arguments.length)
-        return message
-        .reply(`No arguments given.`)
-        .catch(console.error);
+    //if (serverQueue && channel !== message.guild.me.voice.channel)
+        //return message.reply(`You must be in the same channel as ${message.client.user}`).catch(console.error);
+    if (serverQueue && channel !== bot.guilds.cache.get(interaction.guild_id).me.voice.channel) {
+        bot.api.interactions(interaction.id, interaction.token).callback.post({
+            data: {
+                type: 4,
+                data: {
+                    content: `You must be in the same channel as ${bot.user}.`
+                }
+            }
+        }).catch(console.error);
+        return
+    }
 
     const search = arguments.join(" ");
     const videoPattern = /^(https?:\/\/)?(www\.)?(m\.)?(youtube\.com|youtu\.?be)\/.+$/gi;
     const url = arguments[0];
     const urlValid = videoPattern.test(arguments[0]);
+    console.log(url, urlValid)
 
     const queueConstruct = {
-        textChannel: message.channel,
+        textChannel: bot.channels.cache.get(interaction.channel_id),
         channel,
         connection: null,
         songs: [],
@@ -62,32 +81,67 @@ module.exports.run = async (bot, message, arguments) => {
             }
         } catch (error) {
             console.error(error);
-            return message.reply(error.message).catch(console.error);
+            //return message.reply(error.message).catch(console.error);
+            bot.api.interactions(interaction.id, interaction.token).callback.post({
+                data: {
+                    type: 4,
+                    data: {
+                        content: error.message
+                    }
+                }
+            }).catch(console.error);
+            return
         }
-    } else return message.reply("Not a valid URL").catch(console.log("Not a valid URL"))
+    } else {
+        bot.api.interactions(interaction.id, interaction.token).callback.post({
+            data: {
+                type: 4,
+                data: {
+                    content: "Not a valid URL."
+                }
+            }
+        }).catch(console.error)
+        return
+    }
+        //return message.reply("Not a valid URL").catch(console.log("Not a valid URL"))
 
     if (serverQueue) {
         serverQueue.songs.push(song);
-        return serverQueue.textChannel
+        /*return serverQueue.textChannel
         .send(`✅ **${song.title}** has been added to the queue by ${message.author}`)
-        .catch(console.error);
+        .catch(console.error);*/
+        bot.api.interactions(interaction.id, interaction.token).callback.post({
+            data: {
+                type: 4,
+                data: {
+                    content: `✅ **${song.title}** has been added to the queue by ${interaction.member}`
+                }
+            }
+        }).catch(console.error)
     }
 
     queueConstruct.songs.push(song);
-    message.client.queue.set(message.guild.id, queueConstruct);
+    bot.queue.set(interaction.guild_id, queueConstruct);
 
     try {
         queueConstruct.connection = await channel.join();
         await queueConstruct.connection.voice.setSelfDeaf(true);
-        play(queueConstruct.songs[0], message);
+        play(queueConstruct.songs[0], bot, interaction);
     } catch (error) {
         console.error(error);
-        message.client.queue.delete(message.guild.id);
+        bot.queue.delete(interaction.guild_id);
         await channel.leave();
-        return message.channel.send(`Could not join the channel: ${error}`).catch(console.error);
+        //return message.channel.send(`Could not join the channel: ${error}`).catch(console.error);
+        bot.api.interactions(interaction.id, interaction.token).callback.post({
+            data: {
+                type: 4,
+                data: {
+                    content: `Could not join the channel: ${error}`
+                }
+            }
+        }).catch(console.error)
+        return
     }
 };
 
-module.exports.help = {
-    name: "play"
-}
+module.exports = { main }

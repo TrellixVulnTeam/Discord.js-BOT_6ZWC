@@ -5,25 +5,33 @@ const { Util } = require("discord.js");
 const fs = require("fs");
 
 module.exports = {
-  async play(song, message) {
+  async play(song, bot, interaction) {
     try {
       const config = require("./music.backstage.play.config.json");
       PRUNING = config.PRUNING;
     } catch (error) {
       PRUNING = process.env.PRUNING;
     }
-    const queue = message.client.queue.get(message.guild.id);
+    const queue = bot.queue.get(interaction.guild_id);
 
     if (!song) {
       queue.channel.leave();
-      message.client.queue.delete(message.guild.id);
-      return queue.textChannel.send("🚫 Music queue ended.").catch(console.error);
+      bot.queue.delete(interaction.guild_id);
+      //return queue.textChannel.send("🚫 Music queue ended.").catch(console.error);
+      bot.api.interactions(interaction.id, interaction.token).callback.post({
+        data: {
+          type: 4,
+          data: {
+            content: "🚫 Music queue ended."
+          }
+        }
+      })
     }
 
     let stream = null;
     let streamType = song.url.includes("youtube.com") ? "opus" : "ogg/opus";
 
-    queue.connection.on("disconnect", () => message.client.queue.delete(message.guild.id));
+    queue.connection.on("disconnect", () => bot.queue.delete(interaction.guild_id));
 
     const dispatcher = queue.connection
       .play(ytdl(song.url))
@@ -34,17 +42,17 @@ module.exports = {
           // so it can repeat endlessly
           let lastSong = queue.songs.shift();
           queue.songs.push(lastSong);
-          module.exports.play(queue.songs[0], message);
+          module.exports.play(queue.songs[0], bot, interaction);
         } else {
           // Recursively play the next song
           queue.songs.shift();
-          module.exports.play(queue.songs[0], message);
+          module.exports.play(queue.songs[0], bot, interaction);
         }
       })
       .on("error", (err) => {
         console.error(err);
         queue.songs.shift();
-        module.exports.play(queue.songs[0], message);
+        module.exports.play(queue.songs[0], bot, interaction);
       });
     dispatcher.setVolumeLogarithmic(queue.volume / 100);
 
@@ -58,14 +66,14 @@ module.exports = {
       console.error(error);
     }
 
-    const filter = (reaction, user) => user.id !== message.client.user.id;
+    const filter = (reaction, user) => user.id !== bot.user.id;
     var collector = playingMessage.createReactionCollector(filter, {
       time: song.duration > 0 ? song.duration * 1000 : 600000
     });
 
     collector.on("collect", (reaction, user) => {
       if (!queue) return;
-      const member = message.guild.member(user);
+      const member = bot.guilds.cache.get(interaction.guild_id).members.cache.get(interaction.member.user.id);
 
       switch (reaction.emoji.name) {
         case "⏭":

@@ -1,15 +1,16 @@
 const discord = require("discord.js");
 const botConfig = require("../botconfig.json");
 
-module.exports.run = async (bot, message, arguments) => {
-
-    if (arguments != "") {
-        message.reply(`Syntax Error: unused argument "${arguments}" was provided. Use ${botConfig.prefix}help when struggeling.`);
-    } else {
-    message.channel.send("!pong: " + Math.abs(Date.now() - message.createdTimestamp) + "ms");
-    }
+async function main(bot, interaction) {
+    console.log(interaction)
+    bot.api.interactions(interaction.id, interaction.token).callback.post({
+        data: {
+            type: 4,
+            data: {
+                content: String("/pong") // actual ping to server missing.
+            }
+        }
+    })
 }
 
-module.exports.help = {
-    name: "ping"
-}
+module.exports = { main }
