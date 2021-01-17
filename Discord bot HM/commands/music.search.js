@@ -16,6 +16,8 @@ async function main(bot, interaction) {
     const videos = r.videos.slice(0, 5);
     var jsoncount = 1;
     var jsonfile = JSON.parse(fs.readFileSync("./botconfig.json").toString());
+    var guild_id = interaction.guild_id;
+    var channel_id = interaction.channel_id;
     bot.api.interactions(interaction.id, interaction.token).callback.post({
         data: {
             type: 5
@@ -24,7 +26,7 @@ async function main(bot, interaction) {
     videos.forEach(function (v) {
         const views = String(v.views).padStart(10, " ");
         //message.reply(`${jsoncount} | ${v.title} (${v.timestamp}) | ${v.author.name} | ${views}`).then(message => message.delete({timeout: 20000}));
-        bot.guilds.cache.get(interaction.guild_id).channels.cache.get(interaction.channel_id).send(`${jsoncount} | ${v.title} (${v.timestamp}) | ${v.author.name} | ${views}`);
+        bot.guilds.cache.get(guild_id).channels.cache.get(channel_id).send(`${jsoncount} | ${v.title} (${v.timestamp}) | ${v.author.name} | ${views}`);
         jsoncount++;
         jsoncountstr = String(jsoncount-1);
         jsoncountstr2 = String(jsoncount-1) + "_name";
@@ -39,7 +41,7 @@ async function main(bot, interaction) {
     array.forEach(element => {
         //console.log(element);
         if (element.name == "music") {
-            await bot.api.applications(bot.user.id).guilds("675043823511928881").commands.get(element.id).patch({
+            bot.api.applications(bot.user.id).guilds("675043823511928881").commands.get(element.id).patch({
                 data: {
                     name: "music",
                     description: "The built-in discord music player.",

@@ -4,6 +4,7 @@ const ytdl = require("ytdl-core");
 const YouTubeAPI = require("simple-youtube-api");
 const botConfig = require("../botconfig.json");
 const fs = require("fs");
+const { type } = require("os");
 
 let YOUTUBE_API_KEY
 try {
@@ -20,8 +21,14 @@ async function main(bot, interaction) {
     const channel = bot.guilds.cache.get(interaction.guild_id).members.cache.get(interaction.member.user.id).voice.channel;
     var arguments = [ "" ]
     //console.log(interaction.data.options[0].options[0].name)
-    if (interaction.data.options[0].options && interaction.data.options[0].options[0].name == "url") arguments[0] = interaction.data.options[0].options[0].value;
-    else if (interaction.data.options[0].options && interaction.data.options[0].options[0].name == "number") arguments[0] = botConfig[interaction.data.options[0].options[0].value];
+    if (interaction.data.options[0].options && interaction.data.options[0].options[0].name == "url") {
+        arguments[0] = interaction.data.options[0].options[0].value;
+        urltype = "url";
+    }
+    else if (interaction.data.options[0].options && interaction.data.options[0].options[0].name == "number") {
+        arguments[0] = botConfig[interaction.data.options[0].options[0].value];
+        urltype = "number"
+    }
     else {
         await bot.api.interactions(interaction.id, interaction.token).callback.post({
             data: {
@@ -135,7 +142,7 @@ async function main(bot, interaction) {
     try {
         queueConstruct.connection = await channel.join();
         await queueConstruct.connection.voice.setSelfDeaf(true);
-        play(queueConstruct.songs[0], bot, interaction);
+        play(queueConstruct.songs[0], bot, interaction, urltype);
     } catch (error) {
         console.error(error);
         bot.queue.delete(interaction.guild_id);
