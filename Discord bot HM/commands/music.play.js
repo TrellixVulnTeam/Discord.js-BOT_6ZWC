@@ -19,10 +19,19 @@ async function main(bot, interaction) {
     //const channel = interaction.member.voice.channel;
     const channel = bot.guilds.cache.get(interaction.guild_id).members.cache.get(interaction.member.user.id).voice.channel;
     var arguments = [ "" ]
-    console.log(interaction.data.options[0].options[0].name)
-    if (interaction.data.options[0].options[0].name == "url") arguments[0] = interaction.data.options[0].options[0].value;
-    else if (interaction.data.options[0].options[0].name == "number") arguments[0] = interaction.data.options[0].options[0].value;
-    else arguments[0] = 1
+    //console.log(interaction.data.options[0].options[0].name)
+    if (interaction.data.options[0].options && interaction.data.options[0].options[0].name == "url") arguments[0] = interaction.data.options[0].options[0].value;
+    else if (interaction.data.options[0].options && interaction.data.options[0].options[0].name == "number") arguments[0] = botConfig[interaction.data.options[0].options[0].value];
+    else {
+        bot.api.interactions(interaction.id, interaction.token).callback.post({
+            data: {
+                type: 4,
+                data: {
+                    content: "Please enter either a number or a url"
+                }
+            }
+        })
+    }
 
     const serverQueue = bot.queue.get(interaction.guild_id);
     //if (!channel) return message.reply("You need to join a voice channel first!").catch(console.error);
