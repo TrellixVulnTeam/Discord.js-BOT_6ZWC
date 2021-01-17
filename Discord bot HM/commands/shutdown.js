@@ -6,6 +6,11 @@ const sleep = promisify(setTimeout);
 async function main(bot, interaction) {
     console.log(await bot.guilds.cache.get(interaction.guild_id).members.cache.get(interaction.member.user.id).permissions.toArray())
     if (await bot.guilds.cache.get(interaction.guild_id).members.cache.get(interaction.member.user.id).permissions.toArray().find(permission => permission == "ADMINISTRATOR")) {
+        await bot.api.interactions(interaction.id, interaction.token).callback.post({
+            data: {
+                type: 5
+            }
+        })
         var array = await bot.api.applications(bot.user.id).guilds("675043823511928881").commands.get();
         array.forEach(element => {
             bot.api.applications(bot.user.id).guilds("675043823511928881").commands(element.id).delete();

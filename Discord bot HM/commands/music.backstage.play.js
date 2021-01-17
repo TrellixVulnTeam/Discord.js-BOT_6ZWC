@@ -26,8 +26,10 @@ module.exports = {
           }
         }
       })
+      return
     }
 
+    console.log(song)
     let stream = null;
     let streamType = song.url.includes("youtube.com") ? "opus" : "ogg/opus";
 
@@ -57,6 +59,11 @@ module.exports = {
     dispatcher.setVolumeLogarithmic(queue.volume / 100);
 
     try {
+      await bot.api.interactions(interaction.id, interaction.token).callback.post({
+        data: {
+          type: 5
+        }
+      })
       var playingMessage = await queue.textChannel.send(`🎶 Started playing: **${song.title}**\n${song.url}`);
       await playingMessage.react("⏹");
       await playingMessage.react("⏯");
