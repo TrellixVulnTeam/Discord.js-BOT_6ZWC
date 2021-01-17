@@ -17,8 +17,8 @@ module.exports = {
     if (!song) {
       queue.channel.leave();
       bot.queue.delete(interaction.guild_id);
-      //return queue.textChannel.send("🚫 Music queue ended.").catch(console.error);
-      bot.api.interactions(interaction.id, interaction.token).callback.post({
+      return queue.textChannel.send("🚫 Music queue ended.").catch(console.error);
+      /*bot.api.interactions(interaction.id, interaction.token).callback.post({
         data: {
           type: 4,
           data: {
@@ -26,7 +26,7 @@ module.exports = {
           }
         }
       })
-      return
+      return*/
     }
 
     console.log(song)
@@ -58,13 +58,15 @@ module.exports = {
       });
     dispatcher.setVolumeLogarithmic(queue.volume / 100);
 
+    const member = bot.guilds.cache.get(interaction.guild_id).members.cache.get(interaction.member.user.id);
+
     try {
       await bot.api.interactions(interaction.id, interaction.token).callback.post({
         data: {
           type: 5
         }
       })
-      var playingMessage = await queue.textChannel.send(`🎶 Started playing: **${song.title}**\n${song.url}`);
+      var playingMessage = await queue.textChannel.send(`🎶 Started playing: **${song.title}**`);
       await playingMessage.react("⏹");
       await playingMessage.react("⏯");
       await playingMessage.react("⏭");
@@ -80,7 +82,7 @@ module.exports = {
 
     collector.on("collect", (reaction, user) => {
       if (!queue) return;
-      const member = bot.guilds.cache.get(interaction.guild_id).members.cache.get(interaction.member.user.id);
+      //const member = bot.guilds.cache.get(interaction.guild_id).members.cache.get(interaction.member.user.id);
 
       switch (reaction.emoji.name) {
         case "⏭":
