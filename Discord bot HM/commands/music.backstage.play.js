@@ -3,6 +3,7 @@ const ytdl = require('ytdl-core');
 const { canModifyQueue } = require("./music.backstage.play.util");
 const { Util } = require("discord.js");
 const fs = require("fs");
+const { error } = require("console");
 
 module.exports = {
   async play(song, bot, interaction, urltype) {
@@ -13,6 +14,18 @@ module.exports = {
       PRUNING = process.env.PRUNING;
     }
     const queue = bot.queue.get(interaction.guild_id);
+
+    try {
+      await bot.api.interactions(interaction.id, interaction.token).callback.post({
+        data: {
+          type: 5
+        }
+      })
+      if (urltype == "url") var playingMessage = await queue.textChannel.send(`🎶 Started playing: **${song.title}**`);
+      else if (urltype == "number") var playingMessage = await queue.textChannel.send(`🎶 Started playing: **${song.title}**\n${song.url}`);
+    } catch {
+      console.log(error);
+    }
 
     if (!song) {
       queue.channel.leave();
@@ -62,13 +75,6 @@ module.exports = {
     const member = await bot.guilds.cache.get(interaction.guild_id).members.cache.get(interaction.member.user.id);
 
     try {
-      await bot.api.interactions(interaction.id, interaction.token).callback.post({
-        data: {
-          type: 5
-        }
-      })
-      if (urltype == "url") var playingMessage = await queue.textChannel.send(`🎶 Started playing: **${song.title}**`);
-      else if (urltype == "number") var playingMessage = await queue.textChannel.send(`🎶 Started playing: **${song.title}**\n${song.url}`);
       await playingMessage.react("⏹");
       await playingMessage.react("⏯");
       await playingMessage.react("⏭");

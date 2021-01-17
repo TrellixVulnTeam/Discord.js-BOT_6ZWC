@@ -2,7 +2,7 @@ const { play } = require("./music.backstage.play");
 const { Util } = require("discord.js")
 const ytdl = require("ytdl-core");
 const YouTubeAPI = require("simple-youtube-api");
-const botConfig = require("../botconfig.json");
+var botConfig = require("../botconfig.json");
 const fs = require("fs");
 const { type } = require("os");
 
@@ -19,14 +19,16 @@ async function main(bot, interaction) {
     console.log(bot.guilds.cache.get(interaction.guild_id).members.cache.get(interaction.member.user.id));
     //const channel = interaction.member.voice.channel;
     const channel = bot.guilds.cache.get(interaction.guild_id).members.cache.get(interaction.member.user.id).voice.channel;
-    var arguments = [ "" ]
+    var arguments = [ "" ];
+    var json = fs.readFileSync("./botconfig.json");
+    var jsonfile = JSON.parse(json);
     //console.log(interaction.data.options[0].options[0].name)
     if (interaction.data.options[0].options && interaction.data.options[0].options[0].name == "url") {
         arguments[0] = interaction.data.options[0].options[0].value;
         urltype = "url";
     }
     else if (interaction.data.options[0].options && interaction.data.options[0].options[0].name == "number") {
-        arguments[0] = botConfig[interaction.data.options[0].options[0].value];
+        arguments[0] = jsonfile[interaction.data.options[0].options[0].value];
         urltype = "number"
     }
     else {
