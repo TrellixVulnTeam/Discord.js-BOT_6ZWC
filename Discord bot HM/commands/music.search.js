@@ -39,7 +39,7 @@ async function main(bot, interaction) {
     array.forEach(element => {
         //console.log(element);
         if (element.name == "music") {
-            bot.api.applications(bot.user.id).guilds("675043823511928881").commands.get(element.id).patch({
+            await bot.api.applications(bot.user.id).guilds("675043823511928881").commands.get(element.id).patch({
                 data: {
                     name: "music",
                     description: "The built-in discord music player.",

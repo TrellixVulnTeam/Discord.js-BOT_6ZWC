@@ -23,7 +23,7 @@ async function main(bot, interaction) {
     if (interaction.data.options[0].options && interaction.data.options[0].options[0].name == "url") arguments[0] = interaction.data.options[0].options[0].value;
     else if (interaction.data.options[0].options && interaction.data.options[0].options[0].name == "number") arguments[0] = botConfig[interaction.data.options[0].options[0].value];
     else {
-        bot.api.interactions(interaction.id, interaction.token).callback.post({
+        await bot.api.interactions(interaction.id, interaction.token).callback.post({
             data: {
                 type: 4,
                 data: {
@@ -36,7 +36,7 @@ async function main(bot, interaction) {
     const serverQueue = bot.queue.get(interaction.guild_id);
     //if (!channel) return message.reply("You need to join a voice channel first!").catch(console.error);
     if (!channel) {
-        bot.api.interactions(interaction.id, interaction.token).callback.post({
+        await bot.api.interactions(interaction.id, interaction.token).callback.post({
             data: {
                 type: 4,
                 data: {
@@ -49,7 +49,7 @@ async function main(bot, interaction) {
     //if (serverQueue && channel !== message.guild.me.voice.channel)
         //return message.reply(`You must be in the same channel as ${message.client.user}`).catch(console.error);
     if (serverQueue && channel !== bot.guilds.cache.get(interaction.guild_id).me.voice.channel) {
-        bot.api.interactions(interaction.id, interaction.token).callback.post({
+        await bot.api.interactions(interaction.id, interaction.token).callback.post({
             data: {
                 type: 4,
                 data: {
@@ -91,7 +91,7 @@ async function main(bot, interaction) {
         } catch (error) {
             console.error(error);
             //return message.reply(error.message).catch(console.error);
-            bot.api.interactions(interaction.id, interaction.token).callback.post({
+            await bot.api.interactions(interaction.id, interaction.token).callback.post({
                 data: {
                     type: 4,
                     data: {
@@ -102,7 +102,7 @@ async function main(bot, interaction) {
             return
         }
     } else {
-        bot.api.interactions(interaction.id, interaction.token).callback.post({
+        await bot.api.interactions(interaction.id, interaction.token).callback.post({
             data: {
                 type: 4,
                 data: {
@@ -119,7 +119,7 @@ async function main(bot, interaction) {
         /*return serverQueue.textChannel
         .send(`✅ **${song.title}** has been added to the queue by ${message.author}`)
         .catch(console.error);*/
-        bot.api.interactions(interaction.id, interaction.token).callback.post({
+        await bot.api.interactions(interaction.id, interaction.token).callback.post({
             data: {
                 type: 4,
                 data: {
@@ -141,7 +141,7 @@ async function main(bot, interaction) {
         bot.queue.delete(interaction.guild_id);
         await channel.leave();
         //return message.channel.send(`Could not join the channel: ${error}`).catch(console.error);
-        bot.api.interactions(interaction.id, interaction.token).callback.post({
+        await bot.api.interactions(interaction.id, interaction.token).callback.post({
             data: {
                 type: 4,
                 data: {
