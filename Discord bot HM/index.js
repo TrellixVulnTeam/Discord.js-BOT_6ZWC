@@ -2,7 +2,7 @@ const discord = require("discord.js");
 const botConfig = require("./botconfig.json");
 const fs = require("fs");
 const { commands } = require("npm");
-console.log("logging in");
+console.log("[app] logging in");
 
 
 const bot = new discord.Client();
@@ -33,7 +33,7 @@ bot.commands = new discord.Collection();
 });*/
 
 bot.on("ready", async () => {
-    console.log(`${bot.user.username} is online!`);
+    console.log(`[app] ${bot.user.username} is online!`);
     bot.queue = new Map();
     
     bot.api.applications(bot.user.id).guilds("585896430380777503").commands.post({

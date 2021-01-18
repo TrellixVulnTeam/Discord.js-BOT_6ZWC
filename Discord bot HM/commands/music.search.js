@@ -18,7 +18,7 @@ async function main(bot, interaction) {
     var jsonfile = JSON.parse(fs.readFileSync("./botconfig.json").toString());
     var guild_id = interaction.guild_id;
     var channel_id = interaction.channel_id;
-    bot.api.interactions(interaction.id, interaction.token).callback.post({
+    await bot.api.interactions(interaction.id, interaction.token).callback.post({
         data: {
             type: 5
         }
@@ -34,14 +34,16 @@ async function main(bot, interaction) {
         jsonfile[jsoncountstr2] = v.title;
     })
     console.log(jsonfile);
-    fs.writeFile("./botconfig.json", JSON.stringify(jsonfile), function(err, result) {
+    await fs.writeFile("./botconfig.json", JSON.stringify(jsonfile), function(err, result) {
         if (err) console.log(err);
     });
-    var array = await bot.api.applications(bot.user.id).guilds("675043823511928881").commands.get();
+    var array = await bot.api.applications(bot.user.id).guilds("585896430380777503").commands.get();
+    console.log("Array: ------", array)
     array.forEach(element => {
         //console.log(element);
         if (element.name == "music") {
-            bot.api.applications(bot.user.id).guilds("675043823511928881").commands.get(element.id).patch({
+            console.log("music found")
+            bot.api.applications(bot.user.id).guilds("585896430380777503").commands(element.id).patch({
                 data: {
                     name: "music",
                     description: "The built-in discord music player.",
@@ -62,23 +64,23 @@ async function main(bot, interaction) {
                                     description: "The number of the song given by the `/music search` command.",
                                     choices: [
                                         {
-                                            name: `1 | ${botConfig["1_name"]}`,
+                                            name: `1 | ${jsonfile["1_name"]}`,
                                             value: 1
                                         },
                                         {
-                                            name: `2️ | ${botConfig["2_name"]}`,
+                                            name: `2️ | ${jsonfile["2_name"]}`,
                                             value: 2
                                         },
                                         {
-                                            name: `3️ | ${botConfig["3_name"]}`,
+                                            name: `3️ | ${jsonfile["3_name"]}`,
                                             value: 3
                                         },
                                         {
-                                            name: `4️ | ${botConfig["4_name"]}`,
+                                            name: `4️ | ${jsonfile["4_name"]}`,
                                             value: 4
                                         },
                                         {
-                                            name: `5 | ${botConfig["5_name"]}`,
+                                            name: `5 | ${jsonfile["5_name"]}`,
                                             value: 5
                                         }
                                     ]
@@ -105,7 +107,7 @@ async function main(bot, interaction) {
                         }*/
                     ]
                 }
-            }).catch();
+            }).catch(console.error);
         }
     });
 
