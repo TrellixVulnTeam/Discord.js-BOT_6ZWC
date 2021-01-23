@@ -40,7 +40,7 @@
     "soundcloud-downloader": "^0.1.9",
     "ws": "^7.4.1",
     "yt-search": "^2.5.1",
-    "ytdl-core": "^4.4.3",
+    "ytdl-core": "^4.4.4",
     "ytdl-core-discord": "^1.2.4"
   },
   "devDependencies": {
