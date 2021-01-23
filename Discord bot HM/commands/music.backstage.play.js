@@ -75,10 +75,16 @@ module.exports = {
     const member = await bot.guilds.cache.get(interaction.guild_id).members.cache.get(interaction.member.user.id);
 
     try {
-      await playingMessage.react("⏹");
-      await playingMessage.react("⏯");
-      await playingMessage.react("⏭");
-      await playingMessage.react("🔁");
+      while (true) {
+        if (!playingMessage) console.log("waiting for message: ", playingMessage);
+        else {
+        await playingMessage.react("⏹");
+        await playingMessage.react("⏯");
+        await playingMessage.react("⏭");
+        await playingMessage.react("🔁");
+        break;
+        }
+      }
     } catch (error) {
       console.error(error);
     }
