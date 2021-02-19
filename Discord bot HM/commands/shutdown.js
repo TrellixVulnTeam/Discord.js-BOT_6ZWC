@@ -12,13 +12,15 @@ async function main(bot, interaction) {
             }
         })
         var array = await bot.api.applications(bot.user.id).guilds("675043823511928881").commands.get();
-        array.forEach(element => {
+        await array.forEach(element => {
             bot.api.applications(bot.user.id).guilds("675043823511928881").commands(element.id).delete();
         });
-        array = await bot.api.applications(bot.user.id).guilds("585896430380777503").commands.get()
-        array.forEach(element => {
+        console.log("HMEA:", await bot.api.applications(bot.user.id).guilds("675043823511928881").commands.get());
+        var array2 = await bot.api.applications(bot.user.id).guilds("585896430380777503").commands.get();
+        await array2.forEach(element => {
             bot.api.applications(bot.user.id).guilds("585896430380777503").commands(element.id).delete();
         });
+        console.log("HM:", await bot.api.applications(bot.user.id).guilds("585896430380777503").commands.get());
     }
 }
 
