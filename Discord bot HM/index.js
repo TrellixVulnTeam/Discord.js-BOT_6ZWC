@@ -149,26 +149,61 @@ bot.on("ready", async () => {
     }).then(console.log("[app] Command vibecheck posted"))
     bot.api.applications(bot.user.id).guilds("585896430380777503").commands.post({
         data: {
-            name: "move",
-            description: "Move all users in a channel to a different channel.",
+            name: "voice",
+            description: "Voice channel options.",
             options: [
                 {
-                    type: 3,
-                    name: "destination_channel",
-                    description: "The channel to move to.",
-                    choices: voicechannels,
-                    required: true
+                    type: 1,
+                    name: "move",
+                    description: "Move all users in a channel to a different channel.",
+                    options: [
+                        {
+                            type: 3,
+                            name: "destination_channel",
+                            description: "The channel to move to.",
+                            choices: voicechannels,
+                            required: true
+                        },
+                        {
+                            type: 3,
+                            name: "current_channel",
+                            description: "The channel to move from.",
+                            choices: voicechannels,
+                            required: false
+                        }
+                    ]
                 },
                 {
-                    type: 3,
-                    name: "current_channel",
-                    description: "The channel to move from.",
-                    choices: voicechannels,
-                    required: false
+                    type: 1,
+                    name: "mute",
+                    description: "Mute all users in a channel.",
+                    options: [
+                        {
+                            type: 3,
+                            name: "channel",
+                            description: "The channel in which to mute everyone.",
+                            choices: voicechannels,
+                            required: false
+                        }
+                    ]
+                },
+                {
+                    type: 1,
+                    name: "unmute",
+                    description: "Unmute all users in a channel.",
+                    options: [
+                        {
+                            type: 3,
+                            name: "channel",
+                            description: "The channel in which to unmute everyone.",
+                            choises: voicechannels,
+                            required: false
+                        }
+                    ]
                 }
             ]
         }
-    }).then(console.log("[app] Command move posted"))
+    }).then(console.log("[app] Command voice posted"))
 });
 
 
@@ -199,9 +234,18 @@ bot.ws.on('INTERACTION_CREATE', async interaction => {
     } else if (interaction.data.name == "vibecheck") {
         const vibecheck = require("./commands/vibecheck.js");
         await vibecheck.main(bot, interaction);
-    } else if (interaction.data.name == "move") {
-        const move = require("./commands/move.js");
-        await move.main(bot, interaction);
+    } else if (interaction.data.name == "voice") {
+        console.log(interaction.data.options, "----", interaction.data.options[0].name);
+        if (interaction.data.options[0].name == "move") {
+            const move = require("./commands/move.js");
+            await move.main(bot, interaction);
+        } else if (interaction.data.options[0].name == "mute") {
+            const mute = require("./commands/mute.js");
+            await mute.main(bot, interaction);
+        } else if (interaction.data.options[0].name == "unmute") {
+            const unmute = require("./commands/unmute.js");
+            await unmute.main(bot, interaction);
+        }
     }
     //console.log(interaction.data.name);
 })

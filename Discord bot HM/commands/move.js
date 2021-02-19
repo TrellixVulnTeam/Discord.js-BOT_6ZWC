@@ -3,11 +3,11 @@ const botConfig = require("../botconfig.json");
 
 async function main(bot, interaction) {
     if (await bot.guilds.cache.get(interaction.guild_id).members.cache.get(interaction.member.user.id).permissions.toArray().find(permission => permission == "MANAGE_MESSAGES")) {
-        if (await bot.guilds.cache.get(interaction.guild_id).channels.cache.get(interaction.data.options.find(option => option.name == "current_channel"))) {
-            if (await bot.guilds.cache.get(interaction.guild_id).channels.cache.get(interaction.data.options.find(option => option.name == "current_channel").value).members) {
-                await bot.guilds.cache.get(interaction.guild_id).channels.cache.get(interaction.data.options.find(option => option.name == "current_channel").value)
+        if (await bot.guilds.cache.get(interaction.guild_id).channels.cache.get(interaction.data.options[0].options.find(option => option.name == "current_channel"))) {
+            if (await bot.guilds.cache.get(interaction.guild_id).channels.cache.get(interaction.data.options[0].options.find(option => option.name == "current_channel").value).members) {
+                await bot.guilds.cache.get(interaction.guild_id).channels.cache.get(interaction.data.options[0].options.find(option => option.name == "current_channel").value)
                 .members.each(member => bot.guilds.cache.get(interaction.guild_id).members.cache.get(member.user.id)
-                .voice.setChannel(interaction.data.options.find(option => option.name == "destination_channel").value));
+                .voice.setChannel(interaction.data.options[0].options.find(option => option.name == "destination_channel").value));
                 await bot.api.interactions(interaction.id, interaction.token).callback.post({
                     data: {
                         type: 5
@@ -28,7 +28,7 @@ async function main(bot, interaction) {
                 const current_channel_id = await bot.guilds.cache.get(interaction.guild_id).members.cache.get(interaction.member.user.id).voice.channelID;
                 await bot.guilds.cache.get(interaction.guild_id).channels.cache.get(current_channel_id)
                 .members.each(member => bot.guilds.cache.get(interaction.guild_id).members.cache.get(member.user.id)
-                .voice.setChannel(interaction.data.options.find(option => option.name == "destination_channel").value));
+                .voice.setChannel(interaction.data.options[0].options.find(option => option.name == "destination_channel").value));
                 await bot.api.interactions(interaction.id, interaction.token).callback.post({
                     data: {
                         type: 5
