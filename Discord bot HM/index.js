@@ -2,11 +2,15 @@ const discord = require("discord.js");
 const botConfig = require("./botconfig.json");
 const fs = require("fs");
 const { commands } = require("npm");
+const { debug } = require("console");
 console.log("[app] Logging in");
 
 
 const bot = new discord.Client();
 bot.commands = new discord.Collection();
+
+const debugMode = botConfig.debugMode;
+if (debugMode) console.log("[app - debug] Launching debug mode")
 
 bot.on("ready", async () => {
     console.log(`[app] ${bot.user.username} is online!`);
@@ -208,6 +212,8 @@ bot.on("ready", async () => {
 
 
 bot.ws.on('INTERACTION_CREATE', async interaction => {
+    // DEBUG LOG:
+    if (debugMode) console.log("[app] INTERACTION RECEIVED:\n", interaction);
     if (interaction.data.name == "ping") {
         const ping = require("./commands/ping.js");
         await ping.main(bot, interaction);
