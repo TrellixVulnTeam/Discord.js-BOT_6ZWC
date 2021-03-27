@@ -18,7 +18,10 @@ module.exports = {
     try {
       await bot.api.interactions(interaction.id, interaction.token).callback.post({
         data: {
-          type: 5
+          type: 4,
+          data: {
+            content: "Loading music..."
+          }
         }
       })
       if (urltype == "url") var playingMessage = await queue.textChannel.send(`🎶 Started playing: **${song.title}**`);

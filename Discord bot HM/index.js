@@ -2,11 +2,15 @@ const discord = require("discord.js");
 const botConfig = require("./botconfig.json");
 const fs = require("fs");
 const { commands } = require("npm");
+const { debug } = require("console");
 console.log("[app] Logging in");
 
 
 const bot = new discord.Client();
 bot.commands = new discord.Collection();
+
+const debugMode = botConfig.debugMode;
+if (debugMode) console.log("[app - debug] Launching debug mode")
 
 bot.on("ready", async () => {
     console.log(`[app] ${bot.user.username} is online!`);
@@ -204,10 +208,32 @@ bot.on("ready", async () => {
             ]
         }
     }).then(console.log("[app] Command voice posted"))
+    bot.api.applications(bot.user.id).guilds("585896430380777503").commands.post({
+        data: {
+            name: "invite",
+            description: "Create an invite link to this server.",
+            options: [
+                {
+                    type: 5,
+                    name: "permanency",
+                    description: "Choose whether to create a temporary or a permanent invite.",
+                    required: true
+                }
+            ]
+        }
+    }).then(console.log("[app] Command invite posted"))
+    bot.api.applications(bot.user.id).guilds("585896430380777503").commands.post({
+        data: {
+            name: "f1-vote",
+            description: "Send the DOTD and GOTD messages for people to vote on."
+        }
+    })
 });
 
 
 bot.ws.on('INTERACTION_CREATE', async interaction => {
+    // DEBUG LOG:
+    if (debugMode) console.log("[app] INTERACTION RECEIVED:\n", interaction);
     if (interaction.data.name == "ping") {
         const ping = require("./commands/ping.js");
         await ping.main(bot, interaction);
@@ -246,8 +272,14 @@ bot.ws.on('INTERACTION_CREATE', async interaction => {
             const unmute = require("./commands/unmute.js");
             await unmute.main(bot, interaction);
         }
+    } else if (interaction.data.name == "invite") {
+        const invite = require("./commands/invite.js");
+        await invite.main(bot, interaction);
+    } else if (interaction.data.name == "f1-vote") {
+        const f1vote = require("./commands/f1.vote.js");
+        await f1vote.main(bot, interaction);
     }
-    //console.log(interaction.data.name);
+        //console.log(interaction.data.name);
 })
 
 bot.login(botConfig.token).catch(console.error);
