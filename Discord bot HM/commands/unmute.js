@@ -10,7 +10,10 @@ async function main(bot, interaction) {
                 .voice.setMute(false));
                 await bot.api.interactions(interaction.id, interaction.token).callback.post({
                     data: {
-                        type: 5
+                        type: 4,
+                        data: {
+                            content: "Members are being unmuted!"
+                        }
                     }
                 });
             } else {
@@ -31,7 +34,10 @@ async function main(bot, interaction) {
                 .voice.setMute(false));
                 await bot.api.interactions(interaction.id, interaction.token).callback.post({
                     data: {
-                        type: 5
+                        type: 4,
+                        data: {
+                            content: "Members are being unmuted!"
+                        }
                     }
                 });
             } else {

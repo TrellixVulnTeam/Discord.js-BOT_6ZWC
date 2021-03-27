@@ -208,6 +208,26 @@ bot.on("ready", async () => {
             ]
         }
     }).then(console.log("[app] Command voice posted"))
+    bot.api.applications(bot.user.id).guilds("585896430380777503").commands.post({
+        data: {
+            name: "invite",
+            description: "Create an invite link to this server.",
+            options: [
+                {
+                    type: 5,
+                    name: "permanency",
+                    description: "Choose whether to create a temporary or a permanent invite.",
+                    required: true
+                }
+            ]
+        }
+    }).then(console.log("[app] Command invite posted"))
+    bot.api.applications(bot.user.id).guilds("585896430380777503").commands.post({
+        data: {
+            name: "f1-vote",
+            description: "Send the DOTD and GOTD messages for people to vote on."
+        }
+    })
 });
 
 
@@ -252,8 +272,14 @@ bot.ws.on('INTERACTION_CREATE', async interaction => {
             const unmute = require("./commands/unmute.js");
             await unmute.main(bot, interaction);
         }
+    } else if (interaction.data.name == "invite") {
+        const invite = require("./commands/invite.js");
+        await invite.main(bot, interaction);
+    } else if (interaction.data.name == "f1-vote") {
+        const f1vote = require("./commands/f1.vote.js");
+        await f1vote.main(bot, interaction);
     }
-    //console.log(interaction.data.name);
+        //console.log(interaction.data.name);
 })
 
 bot.login(botConfig.token).catch(console.error);
