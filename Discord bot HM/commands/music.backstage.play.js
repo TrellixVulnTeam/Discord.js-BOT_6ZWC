@@ -18,14 +18,24 @@ module.exports = {
     try {
       await bot.api.interactions(interaction.id, interaction.token).callback.post({
         data: {
-          type: 4,
-          data: {
-            content: "Loading music..."
-          }
+          type: 5,
         }
       })
-      if (urltype == "url") var playingMessage = await queue.textChannel.send(`🎶 Started playing: **${song.title}**`);
-      else if (urltype == "number") var playingMessage = await queue.textChannel.send(`🎶 Started playing: **${song.title}**\n${song.url}`);
+      //if (urltype == "url") var playingMessage = await queue.textChannel.send(`🎶 Started playing: **${song.title}**`);
+      //else if (urltype == "number") var playingMessage = await queue.textChannel.send(`🎶 Started playing: **${song.title}**\n${song.url}`);
+      if (urltype == "url") await bot.api.webhooks(bot.user.id, interaction.token).messages("@original").patch({
+        data: {
+          content: `🎶 Started playing: **${song.title}**`
+        }
+      })
+      else if (urltype == "number") await bot.api.webhooks(bot.user.id, interaction.token).messages("@original").patch({
+        data: {
+          content: `🎶 Started playing: **${song.title}**`
+        }
+      })
+      global.playingMessage
+      await bot.guilds.cache.get(interaction.guild_id).channels.cache.get(interaction.channel_id).messages.fetch({limit:1}).then(messages => {global.playingMessage = messages.first();})
+      console.log(global.playingMessage)
     } catch {
       console.log(error);
     }

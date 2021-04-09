@@ -20,18 +20,82 @@ async function main(bot, interaction) {
     var channel_id = interaction.channel_id;
     await bot.api.interactions(interaction.id, interaction.token).callback.post({
         data: {
-            type: 5
+            type: 5,
         }
     })
-    videos.forEach(function (v) {
+    var count = 0
+    await videos.forEach(function (v) {
         const views = String(v.views).padStart(10, " ");
         //message.reply(`${jsoncount} | ${v.title} (${v.timestamp}) | ${v.author.name} | ${views}`).then(message => message.delete({timeout: 20000}));
-        bot.guilds.cache.get(guild_id).channels.cache.get(channel_id).send(`${jsoncount} | ${v.title} (${v.timestamp}) | ${v.author.name} | ${views}`);
-        jsoncount++;
+        console.log(count);
+        if (count == 0) {
+            if (`${jsoncount} | ${v.title}`.length > 99) {
+                bot.api.webhooks(bot.user.id, interaction.token).messages("@original").patch({
+                    data: {
+                        content: `${jsoncount} | (title too long)`
+                    }
+                })
+                jsoncount++;
+                jsoncountstr = String(jsoncount-1);
+                jsoncountstr2 = String(jsoncount-1) + "_name";
+                jsonfile[jsoncountstr] = v.url;
+                jsonfile[jsoncountstr2] = "(title too long)";
+            } else if (`${jsoncount} | ${v.title} (${v.timestamp}) | ${v.author.name} | ${views}`.length > 99) {
+                bot.api.webhooks(bot.user.id, interaction.token).messages("@original").patch({
+                    data: {
+                        content: `${jsoncount} | ${v.title}`
+                    }
+                })
+                jsoncount++;
+                jsoncountstr = String(jsoncount-1);
+                jsoncountstr2 = String(jsoncount-1) + "_name";
+                jsonfile[jsoncountstr] = v.url;
+                jsonfile[jsoncountstr2] = v.title;
+            } else {
+                bot.api.webhooks(bot.user.id, interaction.token).messages("@original").patch({
+                    data: {
+                        content: `${jsoncount} | ${v.title} (${v.timestamp}) | ${v.author.name} | ${views}`
+                    }
+                })
+                jsoncount++;
+                jsoncountstr = String(jsoncount-1);
+                jsoncountstr2 = String(jsoncount-1) + "_name";
+                jsonfile[jsoncountstr] = v.url;
+                jsonfile[jsoncountstr2] = v.title;
+            }
+        }
+        if (count > 0) {
+            if (`${jsoncount} | ${v.title}`.length > 99) {
+                bot.guilds.cache.get(guild_id).channels.cache.get(channel_id).send(`${jsoncount} | (title too long)`);
+                jsoncount++;
+                jsoncountstr = String(jsoncount-1);
+                jsoncountstr2 = String(jsoncount-1) + "_name";
+                jsonfile[jsoncountstr] = v.url;
+                jsonfile[jsoncountstr2] = "(title too long)";
+            } else if (`${jsoncount} | ${v.title} (${v.timestamp}) | ${v.author.name} | ${views}`.length > 99) {
+                bot.guilds.cache.get(guild_id).channels.cache.get(channel_id).send(`${jsoncount} | ${v.title}`);
+                jsoncount++;
+                jsoncountstr = String(jsoncount-1);
+                jsoncountstr2 = String(jsoncount-1) + "_name";
+                jsonfile[jsoncountstr] = v.url;
+                jsonfile[jsoncountstr2] = v.title;
+            } else {
+                bot.guilds.cache.get(guild_id).channels.cache.get(channel_id).send(`${jsoncount} | ${v.title} (${v.timestamp}) | ${v.author.name} | ${views}`);
+                jsoncount++;
+                jsoncountstr = String(jsoncount-1);
+                jsoncountstr2 = String(jsoncount-1) + "_name";
+                jsonfile[jsoncountstr] = v.url;
+                jsonfile[jsoncountstr2] = v.title;
+            }
+            /*bot.guilds.cache.get(guild_id).channels.cache.get(channel_id).send(`${jsoncount} | ${v.title} (${v.timestamp}) | ${v.author.name} | ${views}`);*/
+        }
+        count++;
+        /*jsoncount++;
         jsoncountstr = String(jsoncount-1);
         jsoncountstr2 = String(jsoncount-1) + "_name";
         jsonfile[jsoncountstr] = v.url;
         jsonfile[jsoncountstr2] = v.title;
+        count = count + 1;*/
     })
     console.log(jsonfile);
     await fs.writeFile("./botconfig.json", JSON.stringify(jsonfile), function(err, result) {
