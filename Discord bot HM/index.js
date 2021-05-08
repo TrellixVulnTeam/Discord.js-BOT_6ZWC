@@ -48,7 +48,7 @@ bot.on("ready", async () => {
     }).then(console.log("[app] Command echo posted"))
     bot.api.applications(bot.user.id).guilds("585896430380777503").commands.post({
         data: {
-            name: "clear",
+            name: "monkey-clean",
             description: "Clear a number of recent messages from a text channel.",
             options: [
                 {
@@ -83,13 +83,13 @@ bot.on("ready", async () => {
                     description: "Make the bot play a song in a voice channel.",
                     options: [
                         {
+                            name: "url",
                             type: 3,
-                            name: "URL",
                             description: "Enter the YouTube video url."
                         },
                         {
                             type: 4,
-                            name: "Number",
+                            name: "number",
                             description: "The number of the song given by the `/music search` command.",
                             choices: [
                                 {
@@ -227,12 +227,14 @@ bot.on("ready", async () => {
             name: "f1-vote",
             description: "Send the DOTD and GOTD messages for people to vote on."
         }
-    })
+    }).then(console.log("[app] Command f1-vote posted"))
 });
 
-
+console.log("debug 0");
 bot.ws.on('INTERACTION_CREATE', async interaction => {
+//bot.on('INTERACTION_CREATE', async interaction => {
     // DEBUG LOG:
+    console.log("debug 1");
     if (debugMode) console.log("[app] INTERACTION RECEIVED:\n", interaction);
     if (interaction.data.name == "ping") {
         const ping = require("./commands/ping.js");
@@ -240,7 +242,7 @@ bot.ws.on('INTERACTION_CREATE', async interaction => {
     } else if (interaction.data.name == "echo") {
         const echo = require("./commands/echo.js");
         await echo.main(bot, interaction);
-    } else if (interaction.data.name == "clear") {
+    } else if (interaction.data.name == "monkey-clean") {
         const clear = require("./commands/clear.js");
         await clear.main(bot, interaction);
     } else if (interaction.data.name == "shutdown") {
@@ -279,7 +281,9 @@ bot.ws.on('INTERACTION_CREATE', async interaction => {
         const f1vote = require("./commands/f1.vote.js");
         await f1vote.main(bot, interaction);
     }
+    console.log("debug 2");
         //console.log(interaction.data.name);
 })
 
 bot.login(botConfig.token).catch(console.error);
+console.log("logged in");
