@@ -18,7 +18,7 @@ async function main(bot, interaction) {
                     }
                 })
                 sleep(2000).then(() => {
-                    bot.channels.cache.get(interaction.channel_id).bulkDelete(interaction.data.options.find(option => option.name == "amount").value + 2);
+                    bot.channels.cache.get(interaction.channel_id).bulkDelete(interaction.data.options.find(option => option.name == "amount").value + 1);
                 })
             } else {
                 await bot.api.interactions(interaction.id, interaction.token).callback.post({
